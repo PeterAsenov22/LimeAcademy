@@ -19,10 +19,10 @@ contract Cars is Ownable {
     mapping(address => uint[]) addressCars;
     mapping(uint => uint) carIndexPosition;
     
-    event CarAddedByContractOwner(string _make, string _model, uint _initialPrice, uint _carIndex);
+    event CarAddedByContractOwner(uint _carIndex, string _make, string _model, uint _initialPrice);
     event CarBoughtFromContractOwner(address _buyer, uint256 _price, string _make, string _model);
     event CarBoughtFromSeller(address _buyer, address _from, uint _price, string _make, string _model);
-    event ProfitWithdrawal(uint amount, uint timestamp);
+    event ProfitWithdrawal(uint _amount, uint _timestamp);
     
     function addCar(string _make, string _model, uint _initialPrice) public onlyOwner returns(uint _carIndex) {
         require(_initialPrice > 0, "Invalid initial car price.");
@@ -33,7 +33,7 @@ contract Cars is Ownable {
         uint carsLength = addressCars[owner].push(_carIndex);
         carIndexPosition[_carIndex] = carsLength - 1;
         
-        emit CarAddedByContractOwner(_make, _model, _initialPrice, _carIndex);
+        emit CarAddedByContractOwner(_carIndex, car.make, car.model, car.price);
     }
     
     function buyCarFromContractOwner(uint _index) public payable {
