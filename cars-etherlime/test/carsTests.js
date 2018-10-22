@@ -130,13 +130,16 @@ describe('Cars', () => {
     let make = 'Audi'
     let model = 'A6'
     let initialPrice = ONE_ETHER;
+    let _contract;
+
+    beforeEach(async () => {
+      await contract.addCar(make, model, initialPrice);
+      let _secondUserWallet = new ethers.Wallet(secondUser.secretKey, provider);
+      _contract = new ethers.Contract(contract.address, Cars.abi, _secondUserWallet);
+    });
 
     describe('buyCarFromContractOwner function', () => {
       it('should transfer car to the buyer successfully', async () => {
-        await contract.addCar(make, model, initialPrice);
-        let _secondUserWallet = new ethers.Wallet(secondUser.secretKey, provider);
-        let _contract = new ethers.Contract(contract.address, Cars.abi, _secondUserWallet);
-  
         let tx = await _contract.buyCarFromContractOwner(0, {value: TWO_ETHERS});
         let txReceipt = await provider.getTransactionReceipt(tx.hash);
   
@@ -152,10 +155,6 @@ describe('Cars', () => {
       });
 
       it('should transfer car to the buyer successfully without paying more than initial price', async () => {
-        await contract.addCar(make, model, initialPrice);
-        let _secondUserWallet = new ethers.Wallet(secondUser.secretKey, provider);
-        let _contract = new ethers.Contract(contract.address, Cars.abi, _secondUserWallet);
-  
         let tx = await _contract.buyCarFromContractOwner(0, {value: initialPrice});
         let txReceipt = await provider.getTransactionReceipt(tx.hash);
   
@@ -171,27 +170,18 @@ describe('Cars', () => {
       });
 
       it('should revert if car does not exist', async () => {
-        let _secondUserWallet = new ethers.Wallet(secondUser.secretKey, provider);
-        let _contract = new ethers.Contract(contract.address, Cars.abi, _secondUserWallet);
-        await assert.revert(_contract.buyCarFromContractOwner(0, {value: 1000}));
+        await assert.revert(_contract.buyCarFromContractOwner(1, {value: ONE_ETHER}));
       });
 
       it('should revert if contract owner tries to call it', async () => {
-        await contract.addCar(make, model, initialPrice);
         await assert.revert(contract.buyCarFromContractOwner(0, {value: TWO_ETHERS}));
       });
 
       it('should revert if amount of ether sent is below car initial price', async () => {
-        await contract.addCar(make, model, initialPrice);
-        let _secondUserWallet = new ethers.Wallet(secondUser.secretKey, provider);
-        let _contract = new ethers.Contract(contract.address, Cars.abi, _secondUserWallet);
         await assert.revert(_contract.buyCarFromContractOwner(0, {value: 1000}));
       });
 
       it('should revert if car is secondHand', async () => {
-        await contract.addCar(make, model, initialPrice);
-        let _secondUserWallet = new ethers.Wallet(secondUser.secretKey, provider);
-        let _contract = new ethers.Contract(contract.address, Cars.abi, _secondUserWallet);
         await _contract.buyCarFromContractOwner(0, {value: ONE_ETHER});
         await contract.buyCarFromSeller(0, {value: TWO_ETHERS});
 
@@ -201,9 +191,6 @@ describe('Cars', () => {
 
     describe('getCarInfo function', () => {
       it('should return correct values after transfer of ownership', async () => {
-        await contract.addCar(make, model, initialPrice);
-        let _secondUserWallet = new ethers.Wallet(secondUser.secretKey, provider);
-        let _contract = new ethers.Contract(contract.address, Cars.abi, _secondUserWallet);
         await _contract.buyCarFromContractOwner(0, {value: TWO_ETHERS});
 
         let info  = await _contract.getCarInfo(0);    
@@ -218,9 +205,6 @@ describe('Cars', () => {
     describe('getAddressCars function', () => {
       it('should return correct indexes after transfer of ownership', async () => {
         await contract.addCar(make, model, initialPrice);
-        await contract.addCar(make, model, initialPrice);
-        let _secondUserWallet = new ethers.Wallet(secondUser.secretKey, provider);
-        let _contract = new ethers.Contract(contract.address, Cars.abi, _secondUserWallet);
         await _contract.buyCarFromContractOwner(0, {value: TWO_ETHERS});
 
         let contractOwnerCars = await _contract.getAddressCars(owner.wallet.address);
@@ -236,10 +220,6 @@ describe('Cars', () => {
         await contract.addCar(make, model, initialPrice);
         await contract.addCar(make, model, initialPrice);
         await contract.addCar(make, model, initialPrice);
-        await contract.addCar(make, model, initialPrice);
-
-        let _secondUserWallet = new ethers.Wallet(secondUser.secretKey, provider);
-        let _contract = new ethers.Contract(contract.address, Cars.abi, _secondUserWallet);
         await _contract.buyCarFromContractOwner(1, {value: TWO_ETHERS});
 
         let contractOwnerCars = await _contract.getAddressCars(owner.wallet.address);
