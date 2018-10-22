@@ -39,10 +39,10 @@ describe('Cars', () => {
       assert(_contractBalance.eq(0), 'Initial contract balance should be zero');
     });
 
-    it('should throw when non-authorized user tries to request contract balance', async () => {
+    it('should revert when non-authorized user tries to request contract balance', async () => {
       let _notOwnerWallet = new ethers.Wallet(notOwner.secretKey, provider);
       let _contract = new ethers.Contract(contract.address, Cars.abi, _notOwnerWallet);
-      assert.revert(_contract.getContractBalance());
+      await assert.revert(_contract.getContractBalance());
     });
   });
 
@@ -77,14 +77,14 @@ describe('Cars', () => {
       assert(logs[0]._carIndex.eq(1), 'Car index was not set correctly');
     });
 
-    it('should throw when adding car with initial price less than one', async () => {
-      assert.revert(contract.addCar(make, model, 0));
+    it('should revert when adding car with initial price less than one', async () => {
+      await assert.revert(contract.addCar(make, model, 0));
     });
 
-    it('should throw when non-authorized user tries to add car', async () => {
+    it('should revert when non-authorized user tries to add car', async () => {
       let _notOwnerWallet = new ethers.Wallet(notOwner.secretKey, provider);
       let _contract = new ethers.Contract(contract.address, Cars.abi, _notOwnerWallet);
-      assert.revert(_contract.addCar(make, model, initialPrice));
+      await assert.revert(_contract.addCar(make, model, initialPrice));
     }); 
   });
 
@@ -105,7 +105,7 @@ describe('Cars', () => {
     });
 
     it('should revert if invalid index is passed', async () => {
-      assert.revert(contract.getCarInfo(0));
+      await assert.revert(contract.getCarInfo(0));
     });
   });
 
@@ -173,19 +173,19 @@ describe('Cars', () => {
       it('should revert if car does not exist', async () => {
         let _notOwnerWallet = new ethers.Wallet(notOwner.secretKey, provider);
         let _contract = new ethers.Contract(contract.address, Cars.abi, _notOwnerWallet);
-        assert.revert(_contract.buyCarFromContractOwner(0, {value: 1000}));
+        await assert.revert(_contract.buyCarFromContractOwner(0, {value: 1000}));
       });
 
       it('should revert if contract owner tries to call it', async () => {
         await contract.addCar(make, model, initialPrice);
-        assert.revert(contract.buyCarFromContractOwner(0, {value: TWO_ETHERS}));
+        await assert.revert(contract.buyCarFromContractOwner(0, {value: TWO_ETHERS}));
       });
 
       it('should revert if amount of ether sent is below car initial price', async () => {
         await contract.addCar(make, model, initialPrice);
         let _notOwnerWallet = new ethers.Wallet(notOwner.secretKey, provider);
         let _contract = new ethers.Contract(contract.address, Cars.abi, _notOwnerWallet);
-        assert.revert(_contract.buyCarFromContractOwner(0, {value: 1000}));
+        await assert.revert(_contract.buyCarFromContractOwner(0, {value: 1000}));
       });
 
       it('should revert if car is secondHand', async () => {
@@ -195,7 +195,7 @@ describe('Cars', () => {
         await _contract.buyCarFromContractOwner(0, {value: ONE_ETHER});
         await contract.buyCarFromSeller(0, {value: TWO_ETHERS});
 
-        assert.revert(_contract.buyCarFromContractOwner(0, {value: TWO_ETHERS}));
+        await assert.revert(_contract.buyCarFromContractOwner(0, {value: TWO_ETHERS}));
       });
     });
 
