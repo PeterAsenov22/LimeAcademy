@@ -1,7 +1,7 @@
 pragma solidity ^0.4.25;
 
-import '../node_modules/openzeppelin-solidity/contracts/ownership/Ownable.sol';
-import '../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol';
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract Cars is Ownable {
     using SafeMath for uint;
@@ -40,8 +40,8 @@ contract Cars is Ownable {
         require(_index >= 0 && _index + 1 <= cars.length, "Car does not exist.");
         
         Car storage car = cars[_index];
-        require(car.isSecondHand == false, "The car is second-hand.");
         require(car.owner == owner, "Contract owner is not owner of the car.");
+        require(car.isSecondHand == false, "The car is second-hand.");
         require(msg.sender != owner, "Contract owner is not allowed to call this function.");
         require(msg.value >= car.price, "The amount of ether sent is not enough.");
         
@@ -72,8 +72,7 @@ contract Cars is Ownable {
         uint carsLength = addressCars[msg.sender].push(_index);
         carIndexPosition[_index] = carsLength - 1;
         
-        uint refund = car.price + msg.value.sub(car.price).div(2);
-        assert(refund > car.price);
+        uint refund = car.price.add(msg.value.sub(car.price).div(2));
    
         car.owner = msg.sender;
         car.price = msg.value;
