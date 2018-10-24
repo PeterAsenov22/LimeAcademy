@@ -12,12 +12,14 @@ const Cars = require('../../contract_interfaces/Cars.json');
 export class HomeComponent implements OnInit {
   protected title = 'Crypto Cars';
   protected address: string;
+  protected addressTotalMoneySpent: string;
   protected cars: any;
+  protected ethers = ethers;
 
   private network = 'ropsten';
   private apiAccessToken = 'f8d2169f70584df396394ad9ce130289';
   private infuraProvider: ethers.providers.InfuraProvider;
-  private contractAddress = '0xbaBc4122709eCA6828cE2651F08c17d246B8487B';
+  private contractAddress = '0x596f712b270ed0d7cedadcab6baa34bee878dbff';
   private contractABI = Cars.abi;
   private deployedContract: ethers.Contract;
 
@@ -37,10 +39,13 @@ export class HomeComponent implements OnInit {
           carsResult.push(car);
         }
 
+        const moneySpent = await this.deployedContract.getTotalSpendingsByAddress(this.address);
+        this.addressTotalMoneySpent = ethers.utils.formatEther(moneySpent);
         this.cars = carsResult;
       })
       .catch(() => {
         this.cars = [];
+        this.addressTotalMoneySpent = '0.0';
       });
     }
   }

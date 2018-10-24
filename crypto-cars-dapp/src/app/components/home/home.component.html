@@ -4,41 +4,46 @@
   </h1>
 </div>
 <div class="container-fluid">
-  <div class="col-md-6">
-    <form>
-      <legend>Enter address to check which cars belong to it</legend>
-      <div class="form-group row">
-        <label for="address" class="col-sm-2 col-form-label">Address</label>
-        <div class="col-sm-10">
-          <input type="text" class="form-control-plaintext" id="address" name="address" [(ngModel)]="address" placeholder="0x...">
+  <div class="row">
+    <div class="col-md-6">
+      <form>
+        <legend>Enter address to check which cars belong to it</legend>
+        <div class="form-group row">
+          <label for="address" class="col-sm-2 col-form-label">Address</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control-plaintext" id="address" name="address" [(ngModel)]="address" placeholder="0x...">
+          </div>
+        </div>
+        <button class="btn btn-info" (click)="getAddressCars()">Check</button>
+      </form>
+      <div class="cars-table" *ngIf="cars">
+        <div class="bs-component" *ngIf="cars.length > 0; else notFound">
+          <table class="table table-hover table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Make</th>
+                <th scope="col">Model</th>
+                <th scope="col">Price</th>
+                <th scope="col">Is Second-Hand</th>
+              </tr>
+            </thead>
+            <tbody *ngFor="let car of cars">
+              <tr>
+                <th scope="row">{{car._carMake}}</th>
+                <td>{{car._carModel}}</td>
+                <td>{{ethers.utils.formatEther(car._carPrice)}} ETH</td>
+                <td>{{car._isSecondHand ? 'Yes' : 'No'}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="address-spent">
+          <h5 class="text-info">Total amount spent by the address: {{addressTotalMoneySpent}} ETH</h5>
         </div>
       </div>
-      <button class="btn btn-info" (click)="getAddressCars()">Check</button>
-    </form>
-    <div class="row cars-table" *ngIf="cars">
-      <div class="bs-component" *ngIf="cars.length > 0; else notFound">
-        <table class="table table-hover table-bordered">
-          <thead>
-            <tr>
-              <th scope="col">Make</th>
-              <th scope="col">Model</th>
-              <th scope="col">Price</th>
-              <th scope="col">Is Second-Hand</th>
-            </tr>
-          </thead>
-          <tbody *ngFor="let car of cars">
-            <tr>
-              <th scope="row">{{car._carMake}}</th>
-              <td>{{car._carModel}}</td>
-              <td>{{car._carPrice.toNumber()}}</td>
-              <td>{{car._isSecondHand ? 'Yes' : 'No'}}</td>
-            </tr>
-          </tbody>
-        </table> 
-      </div>
+      <ng-template #notFound>
+        <h3 class="text-warning">The given address does not own any cars currently :(</h3>
+      </ng-template>
     </div>
-    <ng-template #notFound>
-      <h3 class="text-warning">This address doen not own any cars :(</h3>
-    </ng-template>
   </div>
 </div>
