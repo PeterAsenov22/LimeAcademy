@@ -120,6 +120,16 @@ describe('Cars', () => {
     });
   });
 
+  describe('getCarsCount', () => {
+    it('should return correct cars count', async () => {
+      await contract.addCar(make, model, initialPrice);
+      await contract.addCar(make, model, initialPrice);
+
+      let carsCount = await contract.getCarsCount();
+      assert(carsCount.eq(2), 'Cars count should be 2');
+    });
+  });
+
   describe('buyCarFromContractOwner', async () => {
     let _contract;
 
@@ -239,6 +249,18 @@ describe('Cars', () => {
         assert(contractBalance.eq(TWO_ETHERS));
       });
     });
+
+    describe('getTotalSpendingsByAddress function', () => {
+      it('should return correct amount of ethers spent by address', async () => {
+        await _contract.buyCarFromContractOwner(0, {value: TWO_ETHERS, gasLimit: 4000000});
+
+        let ownerSpending = await contract.getTotalSpendingsByAddress(owner.wallet.address);
+        let secondUserSpendings = await contract.getTotalSpendingsByAddress(secondUser.wallet.address);
+
+        assert(ownerSpending.eq(0), 'Incorrect amount of money spent by contract owner');
+        assert(secondUserSpendings.eq(TWO_ETHERS), 'Incorrect amount of money spent by second user');
+      });
+    });
   });
 
   describe('buyCarFromSeller', () => {
@@ -321,6 +343,20 @@ describe('Cars', () => {
 
         let contractBalance = await contract.getContractBalance();
         assert(contractBalance.eq(ONE_AND_A_HALF_ETHER));
+      });
+    });
+
+    describe('getTotalSpendingsByAddress function', () => {
+      it('should return correct amount of ethers spent by address', async () => {
+        await _contract.buyCarFromSeller(0, {value: TWO_ETHERS, gasLimit: 4000000});
+
+        let ownerSpending = await contract.getTotalSpendingsByAddress(owner.wallet.address);
+        let secondUserSpendings = await contract.getTotalSpendingsByAddress(secondUser.wallet.address);
+        let thirdUserSpendings = await contract.getTotalSpendingsByAddress(thirdUser.wallet.address);
+
+        assert(ownerSpending.eq(0), 'Incorrect amount of money spent by contract owner');
+        assert(secondUserSpendings.eq(ONE_ETHER), 'Incorrect amount of money spent by second user');
+        assert(thirdUserSpendings.eq(TWO_ETHERS), 'Incorrect amount of money spent by third user');
       });
     });
   });
