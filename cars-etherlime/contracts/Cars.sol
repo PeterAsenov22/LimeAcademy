@@ -18,6 +18,7 @@ contract Cars is Ownable {
     
     mapping(address => uint[]) addressCars;
     mapping(uint => uint) carIndexPosition;
+    mapping(address => uint) totalMoneySpentByAddress;
     
     event CarAddedByContractOwner(uint _carIndex, string _make, string _model, uint _initialPrice);
     event CarBoughtFromContractOwner(address _buyer, uint256 _price, string _make, string _model);
@@ -53,6 +54,7 @@ contract Cars is Ownable {
         car.owner = msg.sender;
         car.price = msg.value;
         car.isSecondHand = true;
+        totalMoneySpentByAddress[msg.sender] = totalMoneySpentByAddress[msg.sender].add(msg.value);
         
         emit CarBoughtFromContractOwner(car.owner, car.price, car.make, car.model);
     }
@@ -76,6 +78,7 @@ contract Cars is Ownable {
    
         car.owner = msg.sender;
         car.price = msg.value;
+        totalMoneySpentByAddress[msg.sender] = totalMoneySpentByAddress[msg.sender].add(msg.value);
         
         currentOwner.transfer(refund);
         
@@ -107,6 +110,14 @@ contract Cars is Ownable {
     
     function getContractBalance() public view onlyOwner returns (uint) {
         return address(this).balance;
+    }
+
+    function getTotalSpendingsByAddress(address _address) public view returns (uint) {
+        return totalMoneySpentByAddress[_address];
+    }
+
+    function getCarsCount() public view returns (uint) {
+        return cars.length;
     }
     
     function removeCarFromCurrentOwner(address _owner, uint _carIndex) private {
