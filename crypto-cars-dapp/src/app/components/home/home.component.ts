@@ -1,8 +1,6 @@
-declare let require: any;
 import * as ethers from 'ethers';
 import { Component, OnInit } from '@angular/core';
-
-const Cars = require('../../contract_interfaces/Cars.json');
+import { connectionSettings } from '../../app.connection.settings';
 
 @Component({
   selector: 'app-home',
@@ -16,16 +14,12 @@ export class HomeComponent implements OnInit {
   protected cars: any;
   protected ethers = ethers;
 
-  private network = 'ropsten';
-  private apiAccessToken = 'f8d2169f70584df396394ad9ce130289';
   private infuraProvider: ethers.providers.InfuraProvider;
-  private contractAddress = '0x596f712b270ed0d7cedadcab6baa34bee878dbff';
-  private contractABI = Cars.abi;
   private deployedContract: ethers.Contract;
 
   ngOnInit() {
-    this.infuraProvider = new ethers.providers.InfuraProvider(this.network, this.apiAccessToken);
-    this.deployedContract = new ethers.Contract(this.contractAddress, this.contractABI, this.infuraProvider);
+    this.infuraProvider = new ethers.providers.InfuraProvider(connectionSettings.network, connectionSettings.apiAccessToken);
+    this.deployedContract = new ethers.Contract(connectionSettings.contractAddress, connectionSettings.contractABI, this.infuraProvider);
   }
 
   getAddressCars() {
