@@ -1,6 +1,7 @@
 import * as ethers from 'ethers';
 import { Component, OnInit } from '@angular/core';
 import { connectionSettings } from '../../../app.connection.settings';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'app-cars-all',
@@ -14,6 +15,8 @@ export class CarsAllComponent implements OnInit {
   private infuraProvider: ethers.providers.InfuraProvider;
   private deployedContract: ethers.Contract;
 
+  constructor(private spinner: NgxSpinnerService) { }
+
   ngOnInit() {
     this.infuraProvider = new ethers.providers.InfuraProvider(connectionSettings.network, connectionSettings.apiAccessToken);
     this.deployedContract = new ethers.Contract(connectionSettings.contractAddress, connectionSettings.contractABI, this.infuraProvider);
@@ -21,6 +24,7 @@ export class CarsAllComponent implements OnInit {
   }
 
   private async getCars() {
+    this.spinner.show();
     const carsCount = await this.deployedContract.getCarsCount();
 
     const allCarsResult = [];
@@ -30,5 +34,6 @@ export class CarsAllComponent implements OnInit {
     }
 
     this.cars = allCarsResult;
+    this.spinner.hide();
   }
 }
