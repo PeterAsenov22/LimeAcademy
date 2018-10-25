@@ -1,5 +1,6 @@
 import { AppRoutingModule } from './app.routing';
 import { BrowserModule } from '@angular/platform-browser';
+import { CarsModule } from './components/cars/cars.module';
 import { FormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 
@@ -18,6 +19,7 @@ import { NotFoundComponent } from './components/shared/not-found/not-found.compo
   imports: [
     AppRoutingModule,
     BrowserModule,
+    CarsModule,
     FormsModule
   ],
   providers: [],

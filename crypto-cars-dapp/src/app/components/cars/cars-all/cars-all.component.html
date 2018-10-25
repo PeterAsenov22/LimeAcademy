@@ -1,0 +1,30 @@
+<div class="container-fluid">
+  <h1 class="text-center title">All Cars</h1>
+  <div class="cars-table" *ngIf="cars">
+      <div class="bs-component" *ngIf="cars.length > 0; else notFound">
+        <table class="table table-hover table-bordered">
+          <thead>
+            <tr>
+              <th scope="col">Make</th>
+              <th scope="col">Model</th>
+              <th scope="col">Price</th>
+              <th scope="col">Owner</th>
+              <th scope="col">Is Second-Hand</th>
+            </tr>
+          </thead>
+          <tbody *ngFor="let car of cars">
+            <tr>
+              <th scope="row">{{car._carMake}}</th>
+              <td>{{car._carModel}}</td>
+              <td>{{ethers.utils.formatEther(car._carPrice)}} ETH</td>
+              <td>{{car._carOwner}}</td>
+              <td>{{car._isSecondHand ? 'Yes' : 'No'}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <ng-template #notFound>
+      <h3 class="text-warning">No cars found :(</h3>
+    </ng-template>
+</div>
