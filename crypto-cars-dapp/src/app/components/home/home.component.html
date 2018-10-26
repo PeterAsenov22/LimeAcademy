@@ -6,15 +6,29 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-6">
-      <form>
+      <form [formGroup]="checkAddressForm" (ngSubmit)="getAddressCars()">
         <legend>Enter address to check which cars belong to it</legend>
         <div class="form-group row">
           <label for="address" class="col-sm-2 col-form-label">Address</label>
           <div class="col-sm-10">
-            <input type="text" class="form-control-plaintext" id="address" name="address" [(ngModel)]="address" placeholder="0x...">
+            <input 
+              type="text"
+              class="form-control"
+              id="address"
+              formControlName="address"
+              [ngClass]="{ 'is-invalid': address.touched && address.errors }"
+              placeholder="0x...">
+              <div *ngIf="address.errors" class="invalid-feedback">
+                <div *ngIf="address.errors.required">
+                  Address is required.
+                </div>
+                <div *ngIf="address.errors.pattern">
+                  Address should start with '0x' and should be exactly 42 symbols long.
+                </div>
+              </div>
           </div>
         </div>
-        <button class="btn btn-info" (click)="getAddressCars()">Check</button>
+        <input type="submit" class="btn btn-info" value="Check" [disabled]="checkAddressForm.invalid" />
       </form>
       <div class="cars-table" *ngIf="cars">
         <div class="bs-component" *ngIf="cars.length > 0; else notFound">

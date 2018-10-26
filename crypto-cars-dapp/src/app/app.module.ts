@@ -1,7 +1,7 @@
 import { AppRoutingModule } from './app.routing';
 import { BrowserModule } from '@angular/platform-browser';
 import { CarsModule } from './components/cars/cars.module';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { ServicesModule } from './core/services/services.module';
@@ -24,6 +24,7 @@ import { NotFoundComponent } from './components/shared/not-found/not-found.compo
     CarsModule,
     FormsModule,
     NgxSpinnerModule,
+    ReactiveFormsModule,
     ServicesModule
   ],
   providers: [],
