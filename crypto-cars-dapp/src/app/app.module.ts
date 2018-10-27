@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { ServicesModule } from './core/services/services.module';
+import { WalletModule } from './components/wallet/wallet.module';
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './components/home/home.component';
@@ -25,7 +26,8 @@ import { NotFoundComponent } from './components/shared/not-found/not-found.compo
     FormsModule,
     NgxSpinnerModule,
     ReactiveFormsModule,
-    ServicesModule
+    ServicesModule,
+    WalletModule
   ],
   providers: [],
   bootstrap: [AppComponent]
