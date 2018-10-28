@@ -16,6 +16,7 @@ export class OpenWalletComponent implements OnInit {
   protected file;
   protected passwordForm;
   protected mnemonicForm;
+  protected privateKeyForm;
   protected isDecryptingNow: boolean;
   protected progressInPercents: number;
 
@@ -34,6 +35,10 @@ export class OpenWalletComponent implements OnInit {
     this.mnemonicForm = this.fb.group({
       mnemonic: ['', [Validators.required]]
     });
+
+    this.privateKeyForm = this.fb.group({
+      privateKey: ['', [Validators.required]]
+    });
   }
 
   get password () {
@@ -44,6 +49,10 @@ export class OpenWalletComponent implements OnInit {
     return this.mnemonicForm.get('mnemonic');
   }
 
+  get privateKey () {
+    return this.privateKeyForm.get('privateKey');
+  }
+
   openWalletWithMnemonic() {
     const mnemonic = this.mnemonic.value;
     this.mnemonicForm.reset();
@@ -51,6 +60,20 @@ export class OpenWalletComponent implements OnInit {
     try {
       const initializedWallet = ethers.Wallet.fromMnemonic(mnemonic);
       const wallet = initializedWallet.connect(this.providerService.getProvider());
+      this.walletService.loadWallet(wallet);
+      this.router.navigate(['/wallet/info']);
+      this.toastr.success('Wallet loaded successfully');
+    } catch {
+      this.toastr.error('Invalid mnemonic');
+    }
+  }
+
+  openWalletWithPrivateKey() {
+    const privateKey = this.privateKey.value;
+    this.mnemonicForm.reset();
+
+    try {
+      const wallet = new ethers.Wallet(privateKey, this.providerService.getProvider());
       this.walletService.loadWallet(wallet);
       this.router.navigate(['/wallet/info']);
       this.toastr.success('Wallet loaded successfully');

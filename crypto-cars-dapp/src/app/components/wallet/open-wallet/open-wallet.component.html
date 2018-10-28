@@ -23,6 +23,12 @@
                 Mnemonic Phrase
               </label>
             </div>
+            <div class="radiobtn">
+              <label class="form-check-label">
+                <input type="radio" value="privateKey" name="type" [(ngModel)]="accessType">
+                Private Key
+              </label>
+            </div>
           </fieldset>
         </form>
       </div>
@@ -67,6 +73,22 @@
             </textarea>
             <div *ngIf="mnemonic.errors" class="invalid-feedback">
               <div *ngIf="mnemonic.errors.required">Mnemonic is required!</div>
+            </div>
+          </div>
+          <input type="submit" class="btn btn-sm btn-info" value="Open Wallet" />
+        </form>
+      </div>
+      <div *ngIf="accessType == 'privateKey'">
+        <h3 class="title">Paste Your Private Key</h3>
+        <form [formGroup]="privateKeyForm" (ngSubmit)="openWalletWithPrivateKey()">
+          <div class="col-sm-10 mb-4">
+            <textarea 
+              class="form-control" 
+              formControlName="privateKey"
+              [ngClass]="{ 'is-invalid': privateKey.touched && privateKey.errors }">
+            </textarea>
+            <div *ngIf="privateKey.errors" class="invalid-feedback">
+              <div *ngIf="privateKey.errors.required">Private key is required!</div>
             </div>
           </div>
           <input type="submit" class="btn btn-sm btn-info" value="Open Wallet" />
