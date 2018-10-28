@@ -3,10 +3,14 @@ import { NgModule } from '@angular/core';
 
 // services
 import { ContractService } from './contract.service';
+import { ProviderService } from './provider.service';
+import { WalletService } from './wallet.service';
 
 @NgModule({
   providers: [
-    ContractService
+    ContractService,
+    ProviderService,
+    WalletService
   ],
   imports: [
     CommonModule

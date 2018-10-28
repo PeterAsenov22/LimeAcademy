@@ -1,23 +1,22 @@
 declare let require: any;
-import * as ethers from 'ethers';
+import { ethers } from 'ethers';
+import { defer } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { defer } from 'rxjs';
+import { ProviderService } from './provider.service';
 
 const Cars = require('../../contract_interfaces/Cars.json');
-const network = 'ropsten';
-const apiAccessToken = 'f8d2169f70584df396394ad9ce130289';
 const contractAddress = '0x596f712b270ed0d7cedadcab6baa34bee878dbff';
 const contractABI = Cars.abi;
 
 @Injectable()
 export class ContractService {
-  private infuraProvider: ethers.providers.InfuraProvider;
   private deployedContract: ethers.Contract;
 
-  constructor(private spinner: NgxSpinnerService) {
-    this.infuraProvider = new ethers.providers.InfuraProvider(network, apiAccessToken);
-    this.deployedContract = new ethers.Contract(contractAddress, contractABI, this.infuraProvider);
+  constructor(
+    private providerService: ProviderService,
+    private spinner: NgxSpinnerService) {
+    this.deployedContract = new ethers.Contract(contractAddress, contractABI, providerService.getProvider());
   }
 
   getAllCars() {
