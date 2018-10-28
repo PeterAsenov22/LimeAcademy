@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ContractService } from '../../../core/services/contract.service';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { WalletService } from '../../../core/services/wallet.service';
@@ -10,6 +11,7 @@ import { WalletService } from '../../../core/services/wallet.service';
 export class NavigationComponent {
   constructor(
     protected walletService: WalletService,
+    protected contractService: ContractService,
     private router: Router,
     private toastr: ToastrService) {
   }

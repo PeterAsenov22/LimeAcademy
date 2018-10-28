@@ -14,7 +14,7 @@
           </thead>
           <tbody *ngFor="let car of cars">
             <tr>
-              <th scope="row">{{car._carMake}}</th>
+              <td scope="row">{{car._carMake}}</td>
               <td>{{car._carModel}}</td>
               <td>{{ethers.utils.formatEther(car._carPrice)}} ETH</td>
               <td>{{car._carOwner}}</td>

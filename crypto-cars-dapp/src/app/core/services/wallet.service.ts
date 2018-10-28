@@ -22,6 +22,10 @@ export class WalletService {
     return false;
   }
 
+  getWallet(): ethers.Wallet {
+    return this.wallet;
+  }
+
   closeWallet() {
     this.wallet = undefined;
   }
