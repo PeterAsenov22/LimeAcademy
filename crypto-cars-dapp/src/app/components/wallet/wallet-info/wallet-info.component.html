@@ -1,0 +1,31 @@
+<div class="heading">
+    <h1 class="text-info">
+      View Wallet Info
+    </h1>
+</div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-5">
+      <div class="m-3">
+        <h3>Your Address</h3>
+        <input type="text" readonly class="form-control" value="{{address}}" />
+      </div>
+      <div class="m-3">
+        <h3>Your Private Key (unencrypted) <a href="javascript:void(0)" class="ml-2" (click)="hideShowPk()"><i class="{{eyeIcon}}"></i></a></h3>
+        <input type="{{privateKeyInputType}}" readonly class="form-control" value="{{privateKey}}" />
+      </div>
+      <div class="m-3">
+        <h3>Your Balance</h3>
+        <p>{{balance}} ETH</p>
+      </div>
+    </div>
+    <div class="col-md-1"></div>
+    <div class="col-md-5">
+      <h3 class="ml-2 mb-2">Your Address</h3>
+      <div class="qrcode">
+        <img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl={{address}}=UTF-8" />
+      </div>
+    </div>
+  </div>  
+</div>

@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ethers } from 'ethers';
 import { FormBuilder, Validators } from '@angular/forms';
+import { ProviderService } from 'src/app/core/services/provider.service';
+import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { WalletService } from 'src/app/core/services/wallet.service';
-import { ProviderService } from 'src/app/core/services/provider.service';
 
 @Component({
   selector: 'app-open-wallet',
@@ -21,6 +22,7 @@ export class OpenWalletComponent implements OnInit {
   constructor(
     private providerService: ProviderService,
     private walletService: WalletService,
+    private router: Router,
     private fb: FormBuilder,
     private toastr: ToastrService) { }
 
@@ -50,6 +52,7 @@ export class OpenWalletComponent implements OnInit {
       const initializedWallet = ethers.Wallet.fromMnemonic(mnemonic);
       const wallet = initializedWallet.connect(this.providerService.getProvider());
       this.walletService.loadWallet(wallet);
+      this.router.navigate(['/wallet/info']);
       this.toastr.success('Wallet loaded successfully');
     } catch {
       this.toastr.error('Invalid mnemonic');
@@ -62,12 +65,14 @@ export class OpenWalletComponent implements OnInit {
 
     try {
       this.isDecryptingNow = true;
-      const initializedWallet = await ethers.Wallet.fromEncryptedJson(this.file, password, (progress) => {
+      const file = JSON.stringify(this.file);
+      const initializedWallet = await ethers.Wallet.fromEncryptedJson(file, password, (progress) => {
         this.progressInPercents = Math.round(progress * 100);
       });
 
       const wallet = initializedWallet.connect(this.providerService.getProvider());
       this.walletService.loadWallet(wallet);
+      this.router.navigate(['/wallet/info']);
       this.toastr.success('Wallet loaded successfully');
     } catch {
       this.toastr.error('Invalid password');

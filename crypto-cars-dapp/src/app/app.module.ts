@@ -3,6 +3,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { CarsModule } from './components/cars/cars.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { GuardsModule } from './core/guards/guards.module';
 import { NgModule } from '@angular/core';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { ServicesModule } from './core/services/services.module';
@@ -27,6 +28,7 @@ import { NotFoundComponent } from './components/shared/not-found/not-found.compo
     BrowserModule,
     CarsModule,
     FormsModule,
+    GuardsModule,
     NgxSpinnerModule,
     ReactiveFormsModule,
     ServicesModule,

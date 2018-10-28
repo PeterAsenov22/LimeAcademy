@@ -1,0 +1,14 @@
+.heading{
+  text-align:center;
+  margin-top: 20px;
+  margin-bottom: 100px;
+}
+
+.qrcode {
+  border: 1px solid #DDD;
+  border-radius: 4px;
+  padding: 5px;
+  max-width: 53%;
+  height: auto;
+  margin: 10px;
+}

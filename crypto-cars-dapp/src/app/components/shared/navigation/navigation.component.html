@@ -13,11 +13,19 @@
         <li class="nav-item">
           <a class="nav-link" routerLink="/cars/all">All Cars</a>
         </li>
-        <li class="nav-item">
+      </ul>
+      <ul class="nav navbar-nav navbar-right mr-4">
+        <li class="nav-item" *ngIf="!walletService.isWalletLoaded()">
           <a class="nav-link" routerLink="/wallet/create">Create New Wallet</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" *ngIf="!walletService.isWalletLoaded()">
           <a class="nav-link" routerLink="/wallet/open">Open Wallet</a>
+        </li>
+        <li class="nav-item" *ngIf="walletService.isWalletLoaded()">
+          <a class="nav-link" routerLink="/wallet/info">Wallet Info</a>
+        </li>
+        <li class="nav-item" *ngIf="walletService.isWalletLoaded()">
+          <a class="nav-link" href="javascript:void(0)" (click)="closeWallet()">Close Wallet</a>
         </li>
       </ul>
     </div>

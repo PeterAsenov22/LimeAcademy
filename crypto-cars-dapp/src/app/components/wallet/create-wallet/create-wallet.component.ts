@@ -14,6 +14,7 @@ export class CreateWalletComponent implements OnInit {
   protected showAlert: boolean;
   protected progressInPercents: number;
   protected generatedMnemonic: string;
+  private encryptedWallet;
 
   constructor(private fb: FormBuilder) { }
 
@@ -29,6 +30,7 @@ export class CreateWalletComponent implements OnInit {
 
   async createWallet() {
     this.isReady = false;
+    this.encryptedWallet = undefined;
 
     if (this.createWalletForm.invalid) {
       return;
@@ -49,17 +51,18 @@ export class CreateWalletComponent implements OnInit {
     this.generatedMnemonic = mnemonic;
     this.isGeneratingNow = false;
     this.progressInPercents = undefined;
-    window.localStorage.setItem('encryptedWallet', encryptedWallet);
+    this.encryptedWallet = encryptedWallet;
   }
 
   downloadJSONFile() {
-    const json = window.localStorage.getItem('encryptedWallet');
+    const json = this.encryptedWallet;
+    this.encryptedWallet = undefined;
+
     if (json) {
       const downloader = document.createElement('a');
       document.body.appendChild(downloader);
 
-      const data = JSON.stringify(json);
-      const blob = new Blob([data], { type: 'text/json' });
+      const blob = new Blob([json], { type: 'text/json' });
       const url = window.URL;
       const fileUrl = url.createObjectURL(blob);
 
