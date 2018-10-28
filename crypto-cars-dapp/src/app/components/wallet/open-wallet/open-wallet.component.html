@@ -1,0 +1,77 @@
+<div class="heading">
+    <h1 class="text-info">
+      Open Wallet
+    </h1>
+</div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-4 big-size">
+      <h3>How would you like to access your wallet?</h3>
+      <div class="bs-component radio-btns">
+        <form #form="ngForm">
+          <fieldset class="form-group">
+            <div class="radiobtn">
+              <label class="form-check-label">
+                <input type="radio" value="keystore" name="type" [(ngModel)]="accessType">
+                Keystore / JSON File
+              </label>
+            </div>
+            <div class="radiobtn">
+              <label class="form-check-label">
+                <input type="radio" value="mnemonic" name="type" [(ngModel)]="accessType">
+                Mnemonic Phrase
+              </label>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+    <div class="col-md-1"></div>
+    <div class="col-md-4">
+      <div *ngIf="accessType == 'keystore'">
+        <h3 class="title">Select Your Wallet File</h3>
+        <div class="form-group">
+          <label for="file">Choose File</label>
+          <input type="file" id="file" (change)="handleFileInput($event.target.files)">
+        </div>
+        <form [formGroup]="passwordForm" (ngSubmit)="openWalletWithJsonFile()" *ngIf="file">
+          <div class="form-group row mb-2">
+            <label for="password" class="col-sm-2 col-form-label">Password: </label>
+            <div class="col-sm-10">
+              <input 
+                type="password"
+                class="form-control"
+                id="password"
+                formControlName="password"
+                [ngClass]="{ 'is-invalid': password.touched && password.errors }" />
+                <div *ngIf="password.errors" class="invalid-feedback">
+                  <div *ngIf="password.errors.required">Password is required!</div>
+                </div>
+            </div>
+          </div>
+          <input type="submit" class="btn btn-sm btn-info" value="Open Wallet" />
+        </form>
+        <div class="mt-3" *ngIf="isDecryptingNow">
+          <ngb-progressbar type="success" height="20px" [value]="progressInPercents" [striped]="true" [animated]="true"><i>{{progressInPercents}}%</i></ngb-progressbar>
+        </div>
+      </div>
+      <div *ngIf="accessType == 'mnemonic'">
+        <h3 class="title">Paste Your Mnemonic</h3>
+        <form [formGroup]="mnemonicForm" (ngSubmit)="openWalletWithMnemonic()">
+          <div class="col-sm-10 mb-4">
+            <textarea 
+              class="form-control" 
+              formControlName="mnemonic"
+              [ngClass]="{ 'is-invalid': mnemonic.touched && mnemonic.errors }">
+            </textarea>
+            <div *ngIf="mnemonic.errors" class="invalid-feedback">
+              <div *ngIf="mnemonic.errors.required">Mnemonic is required!</div>
+            </div>
+          </div>
+          <input type="submit" class="btn btn-sm btn-info" value="Open Wallet" />
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

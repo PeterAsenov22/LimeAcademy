@@ -1,0 +1,21 @@
+.heading{
+  text-align:center;
+  margin-top: 20px;
+  margin-bottom: 100px;
+}
+
+.big-size{
+  font-size: 150%;
+}
+
+.radio-btns{
+  margin: 25px;
+}
+
+.radiobtn{
+  margin: 15px;
+}
+
+.title{
+  margin-bottom: 30px;
+}

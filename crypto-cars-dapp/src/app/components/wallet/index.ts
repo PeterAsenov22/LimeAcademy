@@ -1,5 +1,7 @@
 import { CreateWalletComponent } from './create-wallet/create-wallet.component';
+import { OpenWalletComponent } from './open-wallet/open-wallet.component';
 
 export const walletComponents = [
-  CreateWalletComponent
+  CreateWalletComponent,
+  OpenWalletComponent
 ];

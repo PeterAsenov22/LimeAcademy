@@ -1,10 +1,12 @@
 import { AppRoutingModule } from './app.routing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { CarsModule } from './components/cars/cars.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { ServicesModule } from './core/services/services.module';
+import { ToastrModule } from 'ngx-toastr';
 import { WalletModule } from './components/wallet/wallet.module';
 
 import { AppComponent } from './app.component';
@@ -21,12 +23,14 @@ import { NotFoundComponent } from './components/shared/not-found/not-found.compo
   ],
   imports: [
     AppRoutingModule,
+    BrowserAnimationsModule,
     BrowserModule,
     CarsModule,
     FormsModule,
     NgxSpinnerModule,
     ReactiveFormsModule,
     ServicesModule,
+    ToastrModule.forRoot(),
     WalletModule
   ],
   providers: [],
