@@ -39,12 +39,15 @@ export class ContractService {
   createCar(make: string, model: string, initialPrice: ethers.utils.BigNumber) {
     return defer(async () => {
       try {
+        this.spinner.show();
         const wallet = this.walletService.getWallet();
         const connectedContract = this.deployedContract.connect(wallet);
         const sentTransaction = await connectedContract.addCar(make, model, initialPrice);
+        this.spinner.hide();
         return sentTransaction.hash;
       } catch {
         this.toastr.error('Transaction failed!');
+        this.spinner.hide();
         return undefined;
       }
     });
@@ -58,6 +61,7 @@ export class ContractService {
       const allCarsResult = [];
       for (let i = 0; i < carsCount.toNumber(); i++) {
         const car = await this.deployedContract.getCarInfo(i);
+        car._id = i;
         allCarsResult.push(car);
       }
 
