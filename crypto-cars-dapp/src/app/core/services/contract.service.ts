@@ -53,6 +53,38 @@ export class ContractService {
     });
   }
 
+  buyCar(index: number, amount: ethers.utils.BigNumber, isSecondHand: boolean) {
+    return defer(async () => {
+      try {
+        this.spinner.show();
+        const wallet = this.walletService.getWallet();
+        const connectedContract = this.deployedContract.connect(wallet);
+
+        let sentTransaction;
+        if (isSecondHand) {
+          sentTransaction = await connectedContract.buyCarFromSeller(index, {value: amount, gasPrice: 400000});
+        } else {
+          sentTransaction = await connectedContract.buyCarFromContractOwner(index, {value: amount, gasPrice: 400000});
+        }
+
+        this.providerService.getProvider().once(sentTransaction.hash, (receipt) => {
+          const prototype = new ethers.utils.Interface(contractABI);
+          const parsedLogs = prototype.parseLog(receipt.logs[0]);
+          const values = parsedLogs.values;
+          const price = ethers.utils.formatEther(values._price);
+          this.toastr.success(`You have successfully bought ${values._make} ${values._model} for ${price} ETH`);
+        });
+
+        this.spinner.hide();
+        return sentTransaction.hash;
+      } catch {
+        this.toastr.error('Transaction failed!');
+        this.spinner.hide();
+        return undefined;
+      }
+    });
+  }
+
   getAllCars() {
     return defer(async () => {
       this.spinner.show();
@@ -67,6 +99,20 @@ export class ContractService {
 
       this.spinner.hide();
       return allCarsResult;
+    });
+  }
+
+  getCar(index: number) {
+    return defer(async () => {
+      try {
+        this.spinner.show();
+        const car = await this.deployedContract.getCarInfo(index);
+        this.spinner.hide();
+        return car;
+      } catch {
+        this.spinner.hide();
+        return undefined;
+      }
     });
   }
 
