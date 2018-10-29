@@ -5,6 +5,7 @@
 </div>
 <div class="container-fluid">
   <div class="row">
+    <div class="col-md-3"></div>
     <div class="col-md-6">
       <form [formGroup]="checkAddressForm" (ngSubmit)="getAddressCars()">
         <legend>Enter address to check which cars belong to it</legend>
@@ -30,29 +31,33 @@
         </div>
         <input type="submit" class="btn btn-info" value="Check" [disabled]="checkAddressForm.invalid" />
       </form>
-      <div class="cars-table" *ngIf="cars">
-        <div class="bs-component" *ngIf="cars.length > 0; else notFound">
-          <table class="table table-hover table-bordered">
-            <thead>
-              <tr>
-                <th scope="col">Make</th>
-                <th scope="col">Model</th>
-                <th scope="col">Price</th>
-                <th scope="col">Is Second-Hand</th>
-              </tr>
-            </thead>
-            <tbody *ngFor="let car of cars">
-              <tr>
-                <th scope="row">{{car._carMake}}</th>
-                <td>{{car._carModel}}</td>
-                <td>{{ethers.utils.formatEther(car._carPrice)}} ETH</td>
-                <td>{{car._isSecondHand ? 'Yes' : 'No'}}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="address-spent">
-          <h5 class="text-info">Total amount spent by the address: {{addressTotalMoneySpent}} ETH</h5>
+    </div>
+  </div>
+  <div *ngIf="cars" class="mt-2">
+    <div class="address-spent text-center">
+      <h5 class="text-info">Total amount spent by the address: {{addressTotalMoneySpent}} ETH</h5>
+    </div>
+    <div class="row mt-5">
+      <div *ngIf="cars.length > 0; else notFound" class="ml-5 row space-top">
+        <div *ngFor="let car of cars" class="card m-4">
+          <div class="card-body">
+            <h4 class="text-center mb-4">{{car._carMake}} {{car._carModel}}</h4>
+            <p><strong>Owner:</strong> {{car._carOwner}}</p>
+            <p><strong>Is Second Hand:</strong> {{car._isSecondHand ? 'Yes' : 'No'}}</p>
+            <p *ngIf="car._isSecondHand"><strong>Bought For:</strong> {{ethers.utils.formatEther(car._carPrice)}} ETH</p>
+            <p *ngIf="!car._isSecondHand"><strong>Bought For:</strong> N/A</p>
+          </div>
+          <div class="card-footer">
+            <span *ngIf="car._isSecondHand" class="text-muted">Price: {{ethers.utils.formatEther(car._carPrice.mul(2))}} ETH</span>
+            <span *ngIf="!car._isSecondHand" class="text-muted">Price: {{ethers.utils.formatEther(car._carPrice)}} ETH</span>
+            <button 
+              type="button"
+              class="btn btn-warning btn-sm float-right"
+              *ngIf="walletService.isWalletLoaded() && (car._carOwner !== walletService.getAddress())"
+              routerLink="/cars/buy/{{car._id}}">
+              Buy
+            </button>
+          </div>
         </div>
       </div>
       <ng-template #notFound>

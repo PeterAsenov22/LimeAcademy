@@ -2,6 +2,7 @@ import * as ethers from 'ethers';
 import { Component, OnInit } from '@angular/core';
 import { ContractService } from '../../core/services/contract.service';
 import { FormBuilder, Validators } from '@angular/forms';
+import { WalletService } from '../../core/services/wallet.service';
 
 @Component({
   selector: 'app-home',
@@ -16,6 +17,7 @@ export class HomeComponent implements OnInit {
   protected ethers = ethers;
 
   constructor(
+    protected walletService: WalletService,
     private fb: FormBuilder,
     private contractService: ContractService) { }
 

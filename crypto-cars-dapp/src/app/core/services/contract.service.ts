@@ -125,6 +125,7 @@ export class ContractService {
         const carsResult = [];
         for (const index of carsIndexes) {
           const car = await this.deployedContract.getCarInfo(index.toNumber());
+          car._id = index;
           carsResult.push(car);
         }
 
