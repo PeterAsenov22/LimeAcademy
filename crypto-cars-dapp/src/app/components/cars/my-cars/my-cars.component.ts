@@ -5,8 +5,7 @@ import { WalletService } from '../../../core/services/wallet.service';
 
 @Component({
   selector: 'app-my-cars',
-  templateUrl: './my-cars.component.html',
-  styleUrls: ['./my-cars.component.css']
+  templateUrl: './my-cars.component.html'
 })
 export class MyCarsComponent implements OnInit {
   protected cars;
