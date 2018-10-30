@@ -8,8 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-buy-car',
-  templateUrl: './buy-car.component.html',
-  styleUrls: ['./buy-car.component.css']
+  templateUrl: './buy-car.component.html'
 })
 export class BuyCarComponent implements OnInit {
   protected car;
