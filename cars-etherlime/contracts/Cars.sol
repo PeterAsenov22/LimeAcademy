@@ -7,8 +7,8 @@ contract Cars is Ownable {
     using SafeMath for uint;
 
     struct Car {
-        string make;
-        string model;
+        bytes32 make;
+        bytes32 model;
         address owner;
         uint price;
         bool isSecondHand;
@@ -20,16 +20,16 @@ contract Cars is Ownable {
     mapping(uint => uint) carIndexPosition;
     mapping(address => uint) totalMoneySpentByAddress;
     
-    event CarAddedByContractOwner(uint _carIndex, string _make, string _model, uint _initialPrice);
-    event CarBoughtFromContractOwner(address _buyer, uint256 _price, string _make, string _model);
-    event CarBoughtFromSeller(address _buyer, address _from, uint _price, string _make, string _model);
+    event CarAddedByContractOwner(uint _carIndex, bytes32 _make, bytes32 _model, uint _initialPrice);
+    event CarBoughtFromContractOwner(address _buyer, uint256 _price, bytes32 _make, bytes32 _model);
+    event CarBoughtFromSeller(address _buyer, address _from, uint _price, bytes32 _make, bytes32 _model);
     event ProfitWithdrawal(uint _amount, uint _timestamp);
     
-    function addCar(string _make, string _model, uint _initialPrice) public onlyOwner returns(uint _carIndex) {
+    function addCar(bytes32 _make, bytes32 _model, uint _initialPrice) public onlyOwner {
         require(_initialPrice > 0, "Invalid initial car price.");
         
         Car memory car = Car(_make, _model, owner, _initialPrice, false);
-        _carIndex = cars.push(car) - 1;
+        uint _carIndex = cars.push(car) - 1;
         
         uint carsLength = addressCars[owner].push(_carIndex);
         carIndexPosition[_carIndex] = carsLength - 1;
@@ -38,7 +38,7 @@ contract Cars is Ownable {
     }
     
     function buyCarFromContractOwner(uint _index) public payable {
-        require(_index >= 0 && _index + 1 <= cars.length, "Car does not exist.");
+        require(_index + 1 <= cars.length, "Car does not exist.");
         
         Car storage car = cars[_index];
         require(car.owner == owner, "Contract owner is not owner of the car.");
@@ -60,14 +60,14 @@ contract Cars is Ownable {
     }
     
     function buyCarFromSeller(uint _index) public payable {
-        require(_index >= 0 && _index + 1 <= cars.length, "Car does not exist.");
+        require(_index + 1 <= cars.length, "Car does not exist.");
         
         Car storage car = cars[_index];
         address currentOwner = car.owner;
         
         require(car.isSecondHand == true, "This car is owned by the contract owner.");
         require(msg.sender != currentOwner, "The owner of the car cannot buy a car he already owns.");
-        require(car.price.mul(2) <= msg.value, "You must pay at least twice the current price of the car.");
+        require(msg.value >= car.price.mul(2) , "You must pay at least twice the current price of the car.");
         
         removeCarFromCurrentOwner(currentOwner, _index);
         
@@ -85,8 +85,8 @@ contract Cars is Ownable {
         emit CarBoughtFromSeller(car.owner, currentOwner, car.price, car.make, car.model);
     }
     
-    function getCarInfo(uint _index) public view returns (string _carMake, string _carModel, address _carOwner, uint _carPrice, bool _isSecondHand) {
-        require(_index >= 0 && cars.length >= _index + 1, "Car does not exist.");
+    function getCarInfo(uint _index) public view returns (bytes32 _carMake, bytes32 _carModel, address _carOwner, uint _carPrice, bool _isSecondHand) {
+        require(cars.length >= _index + 1, "Car does not exist.");
         
         Car memory car = cars[_index];
         _carOwner = car.owner;
