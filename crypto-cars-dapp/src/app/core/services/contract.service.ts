@@ -8,7 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 import { WalletService } from './wallet.service';
 
 const Cars = require('../../contract_interfaces/Cars.json');
-const contractAddress = '0x596f712b270ed0d7cedadcab6baa34bee878dbff';
+const contractAddress = '0x6ce2367a80e7655b4052e4287cf3d347e635c7a9';
 const contractABI = Cars.abi;
 
 @Injectable()
@@ -26,7 +26,9 @@ export class ContractService {
       .owner()
       .then(owner => this.contractOwner = owner);
 
-    this.deployedContract.on('CarAddedByContractOwner', (index, make, model, price) => {
+    this.deployedContract.on('CarAddedByContractOwner', (index, makeInBytes, modelInBytes, price) => {
+      const make = ethers.utils.parseBytes32String(makeInBytes);
+      const model = ethers.utils.parseBytes32String(modelInBytes);
       const priceEth = ethers.utils.formatEther(price);
       this.toastr.success(`${make} ${model} added by contract owner. Initial pirce: ${priceEth} ETH`);
     });
@@ -42,7 +44,9 @@ export class ContractService {
         this.spinner.show();
         const wallet = this.walletService.getWallet();
         const connectedContract = this.deployedContract.connect(wallet);
-        const sentTransaction = await connectedContract.addCar(make, model, initialPrice);
+        const makeInBytes = ethers.utils.formatBytes32String(make);
+        const modelInBytes = ethers.utils.formatBytes32String(model);
+        const sentTransaction = await connectedContract.addCar(makeInBytes, modelInBytes, initialPrice);
         this.spinner.hide();
         return sentTransaction.hash;
       } catch {
@@ -71,8 +75,11 @@ export class ContractService {
           const prototype = new ethers.utils.Interface(contractABI);
           const parsedLogs = prototype.parseLog(receipt.logs[0]);
           const values = parsedLogs.values;
+
+          const make = ethers.utils.parseBytes32String(values._make);
+          const model = ethers.utils.parseBytes32String(values._model);
           const price = ethers.utils.formatEther(values._price);
-          this.toastr.success(`You have successfully bought ${values._make} ${values._model} for ${price} ETH`);
+          this.toastr.success(`You have successfully bought ${make} ${model} for ${price} ETH`);
         });
 
         this.spinner.hide();

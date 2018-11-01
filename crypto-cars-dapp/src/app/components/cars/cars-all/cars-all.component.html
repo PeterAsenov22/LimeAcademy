@@ -12,7 +12,7 @@
     <div *ngIf="filteredCars.length > 0; else notFound" class="ml-5 row space-top">
       <div *ngFor="let car of filteredCars" class="card m-2">
         <div class="card-body">
-          <h4 class="text-center mb-4">{{car._carMake}} {{car._carModel}}</h4>
+          <h4 class="text-center mb-4">{{ethers.utils.parseBytes32String(car._carMake)}} {{ethers.utils.parseBytes32String(car._carModel)}}</h4>
           <p><strong>Owner:</strong> {{car._carOwner}}</p>
           <p><strong>Is Second Hand:</strong> {{car._isSecondHand ? 'Yes' : 'No'}}</p>
           <p *ngIf="car._isSecondHand"><strong>Bought For:</strong> {{ethers.utils.formatEther(car._carPrice)}} ETH</p>

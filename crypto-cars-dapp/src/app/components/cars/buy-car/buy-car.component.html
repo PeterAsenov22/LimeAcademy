@@ -1,6 +1,6 @@
 <div class="heading" *ngIf="car">
     <h1 class="text-info">
-      {{car._carMake}} {{car._carModel}}
+      {{ethers.utils.parseBytes32String(car._carMake)}} {{ethers.utils.parseBytes32String(car._carModel)}}
     </h1>
 </div>
 <div class="container-fluid">
