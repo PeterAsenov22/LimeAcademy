@@ -24,8 +24,15 @@ contract Cars is Ownable {
     event CarBoughtFromContractOwner(address _buyer, uint256 _price, bytes32 _make, bytes32 _model);
     event CarBoughtFromSeller(address _buyer, address _from, uint _price, bytes32 _make, bytes32 _model);
     event ProfitWithdrawal(uint _amount, uint _timestamp);
+
+    modifier onlyExistingCar(uint _index) {
+        require(cars.length >= _index + 1, "Car does not exist.");
+        _;
+    }
     
     function addCar(bytes32 _make, bytes32 _model, uint _initialPrice) public onlyOwner {
+        require(_make[0] != 0, "Invalid car make.");
+        require(_model[0] != 0, "Invalid car model.");
         require(_initialPrice > 0, "Invalid initial car price.");
         
         Car memory car = Car(_make, _model, owner, _initialPrice, false);
@@ -37,9 +44,8 @@ contract Cars is Ownable {
         emit CarAddedByContractOwner(_carIndex, car.make, car.model, car.price);
     }
     
-    function buyCarFromContractOwner(uint _index) public payable {
-        require(_index + 1 <= cars.length, "Car does not exist.");
-        
+    function buyCarFromContractOwner(uint _index) public payable onlyExistingCar(_index) {
+     
         Car storage car = cars[_index];
         require(car.owner == owner, "Contract owner is not owner of the car.");
         require(car.isSecondHand == false, "The car is second-hand.");
@@ -59,8 +65,7 @@ contract Cars is Ownable {
         emit CarBoughtFromContractOwner(car.owner, car.price, car.make, car.model);
     }
     
-    function buyCarFromSeller(uint _index) public payable {
-        require(_index + 1 <= cars.length, "Car does not exist.");
+    function buyCarFromSeller(uint _index) public payable onlyExistingCar(_index) {
         
         Car storage car = cars[_index];
         address currentOwner = car.owner;
@@ -85,8 +90,7 @@ contract Cars is Ownable {
         emit CarBoughtFromSeller(car.owner, currentOwner, car.price, car.make, car.model);
     }
     
-    function getCarInfo(uint _index) public view returns (bytes32 _carMake, bytes32 _carModel, address _carOwner, uint _carPrice, bool _isSecondHand) {
-        require(cars.length >= _index + 1, "Car does not exist.");
+    function getCarInfo(uint _index) public view onlyExistingCar(_index) returns (bytes32 _carMake, bytes32 _carModel, address _carOwner, uint _carPrice, bool _isSecondHand) {
         
         Car memory car = cars[_index];
         _carOwner = car.owner;
