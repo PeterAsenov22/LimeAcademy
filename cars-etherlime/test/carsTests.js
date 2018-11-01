@@ -10,8 +10,8 @@ describe('Cars', () => {
   const owner = accounts[0];
   const secondUser = accounts[1];
   const thirdUser = accounts[2];
-  const make = 'Audi'
-  const model = 'A6'
+  const make = ethers.utils.formatBytes32String('Audi');
+  const model = ethers.utils.formatBytes32String('A6');
   const initialPrice = ONE_ETHER;
   const defaultOverrideOptions = {
       gasLimit: 4000000
@@ -77,6 +77,14 @@ describe('Cars', () => {
       let logs = utils.parseLogs(txReceipt, contract, 'CarAddedByContractOwner');
       assert(ethers.utils.bigNumberify(logs.length).eq(1), 'Logs count should be one');
       assert(logs[0]._carIndex.eq(1), 'Car index was not set correctly');
+    });
+
+    it('should revert when adding car with empty make', async () => {
+      await assert.revert(contract.addCar(ethers.utils.formatBytes32String(''), model, 1));
+    });
+
+    it('should revert when adding car with empty model', async () => {
+      await assert.revert(contract.addCar(make, ethers.utils.formatBytes32String(''), 1));
     });
 
     it('should revert when adding car with initial price less than one', async () => {
