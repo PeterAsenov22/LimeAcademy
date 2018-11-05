@@ -12,6 +12,7 @@ contract Cars is Ownable {
         address owner;
         uint price;
         bool isSecondHand;
+        bytes32 imageHash;
     }
     
     Car[] private cars;
@@ -30,12 +31,13 @@ contract Cars is Ownable {
         _;
     }
     
-    function addCar(bytes32 _make, bytes32 _model, uint _initialPrice) public onlyOwner {
+    function addCar(bytes32 _make, bytes32 _model, uint _initialPrice, bytes32 _imageHash) public onlyOwner {
         require(_make[0] != 0, "Invalid car make.");
         require(_model[0] != 0, "Invalid car model.");
         require(_initialPrice > 0, "Invalid initial car price.");
+        require(_imageHash[0] != 0, "Invalid car image hash.");
         
-        Car memory car = Car(_make, _model, owner, _initialPrice, false);
+        Car memory car = Car(_make, _model, owner, _initialPrice, false, _imageHash);
         uint _carIndex = cars.push(car) - 1;
         
         uint carsLength = addressCars[owner].push(_carIndex);
@@ -90,7 +92,7 @@ contract Cars is Ownable {
         emit CarBoughtFromSeller(car.owner, currentOwner, car.price, car.make, car.model);
     }
     
-    function getCarInfo(uint _index) public view onlyExistingCar(_index) returns (bytes32 _carMake, bytes32 _carModel, address _carOwner, uint _carPrice, bool _isSecondHand) {
+    function getCarInfo(uint _index) public view onlyExistingCar(_index) returns (bytes32 _carMake, bytes32 _carModel, address _carOwner, uint _carPrice, bool _isSecondHand, bytes32 _imageHash) {
         
         Car memory car = cars[_index];
         _carOwner = car.owner;
@@ -98,6 +100,7 @@ contract Cars is Ownable {
         _carMake = car.make;
         _carModel = car.model;
         _isSecondHand = car.isSecondHand;
+        _imageHash = car.imageHash;
     }
     
     function getAddressCars(address _address) public view returns (uint[]) {
