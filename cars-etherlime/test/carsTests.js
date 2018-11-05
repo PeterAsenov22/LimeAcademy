@@ -13,8 +13,10 @@ describe('Cars', () => {
   const make = ethers.utils.formatBytes32String('Audi');
   const model = ethers.utils.formatBytes32String('A6');
   const initialPrice = ONE_ETHER;
+  const imageHash = '0x017dfd85d4f6cb4dcd715a88101f7b1f06cd1e009b2327a0809d01eb9c91f231';
+  
   const defaultOverrideOptions = {
-      gasLimit: 4000000
+    gasLimit: 4000000
   }
 
   let deployer;
@@ -54,7 +56,7 @@ describe('Cars', () => {
 
   describe('addCar', () => {
     it('should add car successfully', async () => {
-      let tx = await contract.addCar(make, model, initialPrice);
+      let tx = await contract.addCar(make, model, initialPrice, imageHash);
       let txReceipt = await provider.getTransactionReceipt(tx.hash);
 
       let isEmitted = utils.hasEvent(txReceipt, contract, 'CarAddedByContractOwner');
@@ -70,8 +72,8 @@ describe('Cars', () => {
     });
 
     it('should add second car successfully', async () => {
-      await contract.addCar(make, model, initialPrice);
-      let tx = await contract.addCar(make, model, initialPrice);
+      await contract.addCar(make, model, initialPrice, imageHash);
+      let tx = await contract.addCar(make, model, initialPrice, imageHash);
       let txReceipt = await provider.getTransactionReceipt(tx.hash);
 
       let logs = utils.parseLogs(txReceipt, contract, 'CarAddedByContractOwner');
@@ -80,27 +82,31 @@ describe('Cars', () => {
     });
 
     it('should revert when adding car with empty make', async () => {
-      await assert.revert(contract.addCar(ethers.utils.formatBytes32String(''), model, 1));
+      await assert.revert(contract.addCar(ethers.utils.formatBytes32String(''), model, 1, imageHash));
     });
 
     it('should revert when adding car with empty model', async () => {
-      await assert.revert(contract.addCar(make, ethers.utils.formatBytes32String(''), 1));
+      await assert.revert(contract.addCar(make, ethers.utils.formatBytes32String(''), 1, imageHash));
+    });
+
+    it('should revert when adding car with empty image hash', async () => {
+      await assert.revert(contract.addCar(make, model, 1, ethers.utils.formatBytes32String('')));
     });
 
     it('should revert when adding car with initial price less than one', async () => {
-      await assert.revert(contract.addCar(make, model, 0));
+      await assert.revert(contract.addCar(make, model, 0, imageHash));
     });
 
     it('should revert when non-authorized user tries to add car', async () => {
       let _secondUserWallet = new ethers.Wallet(secondUser.secretKey, provider);
       let _contract = new ethers.Contract(contract.address, Cars.abi, _secondUserWallet);
-      await assert.revert(_contract.addCar(make, model, initialPrice));
+      await assert.revert(_contract.addCar(make, model, initialPrice, imageHash));
     }); 
   });
 
   describe('getCarInfo', () => {
     it('should return correct data', async () => {
-      await contract.addCar(make, model, initialPrice);
+      await contract.addCar(make, model, initialPrice, imageHash);
       let info  = await contract.getCarInfo(0);
       
       assert.strictEqual(info._carMake, make, 'Does not return correct value for car make');
@@ -108,6 +114,7 @@ describe('Cars', () => {
       assert(info._carPrice.eq(initialPrice), 'Does not return correct value for car price');
       assert.strictEqual(info._carOwner, owner.wallet.address, 'Does not return correct value for car owner');
       assert(!info._isSecondHand, 'Does not return false for isSecondHand');
+      assert.strictEqual(info._imageHash, imageHash, 'Does not return correct value for car image hash');
     });
 
     it('should revert if invalid index is passed', async () => {
@@ -117,8 +124,8 @@ describe('Cars', () => {
 
   describe('getAddressCars', () => {   
     it('should return correct carIndexes', async () => {
-      await contract.addCar(make, model, initialPrice);
-      await contract.addCar(make, model, initialPrice);
+      await contract.addCar(make, model, initialPrice, imageHash);
+      await contract.addCar(make, model, initialPrice, imageHash);
 
       let carIndexes = await contract.getAddressCars(owner.wallet.address);
 
@@ -130,8 +137,8 @@ describe('Cars', () => {
 
   describe('getCarsCount', () => {
     it('should return correct cars count', async () => {
-      await contract.addCar(make, model, initialPrice);
-      await contract.addCar(make, model, initialPrice);
+      await contract.addCar(make, model, initialPrice, imageHash);
+      await contract.addCar(make, model, initialPrice, imageHash);
 
       let carsCount = await contract.getCarsCount();
       assert(carsCount.eq(2), 'Cars count should be 2');
@@ -142,7 +149,7 @@ describe('Cars', () => {
     let _contract;
 
     beforeEach(async () => {
-      await contract.addCar(make, model, initialPrice);
+      await contract.addCar(make, model, initialPrice, imageHash);
       let _secondUserWallet = new ethers.Wallet(secondUser.secretKey, provider);
       _contract = new ethers.Contract(contract.address, Cars.abi, _secondUserWallet);
     });
@@ -214,12 +221,13 @@ describe('Cars', () => {
         assert(info._carPrice.eq(TWO_ETHERS), 'Does not return correct value for car price');
         assert.strictEqual(info._carOwner, secondUser.wallet.address, 'Does not return correct value for car owner');
         assert(info._isSecondHand, 'Does not return true for isSecondHand');
+        assert.strictEqual(info._imageHash, imageHash, 'Does not return correct value for car image hash');
       });
     });
 
     describe('getAddressCars function', () => {
       it('should return correct indexes after transfer of ownership', async () => {
-        await contract.addCar(make, model, initialPrice);
+        await contract.addCar(make, model, initialPrice, imageHash);
         await _contract.buyCarFromContractOwner(0, {value: TWO_ETHERS, gasLimit: 4000000});
 
         let contractOwnerCars = await _contract.getAddressCars(owner.wallet.address);
@@ -232,9 +240,9 @@ describe('Cars', () => {
       });
 
       it('should return correct indexes after transfer of ownership with more cars (testing removeCarFromCurrentOwner function)', async () => {
-        await contract.addCar(make, model, initialPrice);
-        await contract.addCar(make, model, initialPrice);
-        await contract.addCar(make, model, initialPrice);
+        await contract.addCar(make, model, initialPrice, imageHash);
+        await contract.addCar(make, model, initialPrice, imageHash);
+        await contract.addCar(make, model, initialPrice, imageHash);
         await _contract.buyCarFromContractOwner(1, {value: TWO_ETHERS, gasLimit: 4000000});
 
         let contractOwnerCars = await _contract.getAddressCars(owner.wallet.address);
@@ -275,7 +283,7 @@ describe('Cars', () => {
     let _contract;
 
     beforeEach(async () => {
-      await contract.addCar(make, model, initialPrice);
+      await contract.addCar(make, model, initialPrice, imageHash);
       let _secondUserWallet = new ethers.Wallet(secondUser.secretKey, provider);
       _contract = new ethers.Contract(contract.address, Cars.abi, _secondUserWallet);
       await _contract.buyCarFromContractOwner(0, {value: initialPrice, gasLimit: 4000000});
@@ -309,7 +317,7 @@ describe('Cars', () => {
       });
 
       it('should revert if you try to buy not second-hand car', async () => {
-        await contract.addCar(make, model, initialPrice);
+        await contract.addCar(make, model, initialPrice, imageHash);
         await assert.revert(_contract.buyCarFromSeller(1, {value: TWO_ETHERS, gasLimit: 4000000}));
       });
 
@@ -329,6 +337,7 @@ describe('Cars', () => {
         assert(info._carPrice.eq(TWO_ETHERS), 'Does not return correct value for car price');
         assert.strictEqual(info._carOwner, thirdUser.wallet.address, 'Does not return correct value for car owner');
         assert(info._isSecondHand, 'Does not return true for isSecondHand');
+        assert.strictEqual(info._imageHash, imageHash, 'Does not return correct value for car image hash');
       });
     });
 
@@ -373,7 +382,7 @@ describe('Cars', () => {
     let _contract;
 
     beforeEach(async () => {
-      await contract.addCar(make, model, initialPrice);
+      await contract.addCar(make, model, initialPrice, imageHash);
       let _secondUserWallet = new ethers.Wallet(secondUser.secretKey, provider);
       _contract = new ethers.Contract(contract.address, Cars.abi, _secondUserWallet);
       await _contract.buyCarFromContractOwner(0, {value: TWO_ETHERS, gasLimit: 4000000});
