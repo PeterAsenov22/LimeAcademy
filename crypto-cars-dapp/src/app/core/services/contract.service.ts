@@ -1,14 +1,17 @@
 declare let require: any;
+import { Buffer } from 'buffer';
 import { ethers } from 'ethers';
 import { defer } from 'rxjs';
 import { Injectable } from '@angular/core';
+import { IpfsService } from './ipfs.service';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ProviderService } from './provider.service';
 import { ToastrService } from 'ngx-toastr';
 import { WalletService } from './wallet.service';
+import { getBytes32FromIpfsHash } from '../../core/utils/helperFunctions';
 
 const Cars = require('../../contract_interfaces/Cars.json');
-const contractAddress = '0x6ce2367a80e7655b4052e4287cf3d347e635c7a9';
+const contractAddress = '0x367c06c29288A7FA63f7F29Dc484646D7f87689D';
 const contractABI = Cars.abi;
 
 @Injectable()
@@ -17,6 +20,7 @@ export class ContractService {
   private contractOwner;
 
   constructor(
+    private ipfsService: IpfsService,
     private walletService: WalletService,
     private providerService: ProviderService,
     private spinner: NgxSpinnerService,
@@ -38,15 +42,17 @@ export class ContractService {
     return this.contractOwner;
   }
 
-  createCar(make: string, model: string, initialPrice: ethers.utils.BigNumber) {
+  createCar(make: string, model: string, initialPrice: ethers.utils.BigNumber, imageBuffer: Buffer) {
     return defer(async () => {
       try {
         this.spinner.show();
+        const uploadResult = await this.ipfsService.addFile(imageBuffer);
         const wallet = this.walletService.getWallet();
         const connectedContract = this.deployedContract.connect(wallet);
         const makeInBytes = ethers.utils.formatBytes32String(make);
         const modelInBytes = ethers.utils.formatBytes32String(model);
-        const sentTransaction = await connectedContract.addCar(makeInBytes, modelInBytes, initialPrice);
+        const imageInBytes = getBytes32FromIpfsHash(uploadResult[0].hash);
+        const sentTransaction = await connectedContract.addCar(makeInBytes, modelInBytes, initialPrice, imageInBytes);
         this.spinner.hide();
         return sentTransaction.hash;
       } catch {

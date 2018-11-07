@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { ContractService } from '../../../core/services/contract.service';
 import { FormBuilder } from '@angular/forms';
 import { WalletService } from 'src/app/core/services/wallet.service';
+import { getIpfsHashFromBytes32 } from '../../../core/utils/helperFunctions';
 
 @Component({
   selector: 'app-cars-all',
@@ -57,5 +58,9 @@ export class CarsAllComponent implements OnInit {
       case 'Second-Hand':
         this.filteredCars = this.allCars.filter(c => c._isSecondHand === true);
     }
+  }
+
+  protected getIpfsHash(imageHash) {
+    return getIpfsHashFromBytes32(imageHash);
   }
 }

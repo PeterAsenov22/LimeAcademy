@@ -12,6 +12,7 @@
     <div *ngIf="filteredCars.length > 0; else notFound" class="ml-5 row space-top">
       <div *ngFor="let car of filteredCars" class="card m-2">
         <div class="card-body">
+          <img class="img-thumbnail car-image img-fluid mb-3 ml-4" src="https://ipfs.io/ipfs/{{getIpfsHash(car._imageHash)}}" />
           <h4 class="text-center mb-4">{{ethers.utils.parseBytes32String(car._carMake)}} {{ethers.utils.parseBytes32String(car._carModel)}}</h4>
           <p><strong>Owner:</strong> {{car._carOwner}}</p>
           <p><strong>Is Second Hand:</strong> {{car._isSecondHand ? 'Yes' : 'No'}}</p>

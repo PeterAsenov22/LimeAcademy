@@ -58,7 +58,11 @@
       </form>
     </div>
     <div class="col-md-3">
-      <div *ngIf="showAlert">
+      <h6>Choose Car Image</h6>
+      <div class="form-group">
+        <input class="btn btn-primary" type="file" id="file" (change)="handleFileInput($event.target)">
+      </div>
+      <div *ngIf="showAlert" class="mt-5">
           <ngb-alert type="success" (close)="closeAlert()">
             Transaction sent successfully!
             <br/>
