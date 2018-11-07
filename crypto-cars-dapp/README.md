@@ -1,10 +1,18 @@
 # CryptoCarsDapp
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 6.0.8.
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 6.0.8. Please read the `development server` part before trying to run the project.
 
 ## Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Install all packages with `npm install`. After that navigate to `node_modules/@angular-devkit/build-angular/src/angular-cli-files/models/webpack-configs/browser.js` file and do the following change:
+`node: {
+            crypto: true,
+            stream: true,
+            os: true,
+            buffer: true,
+            path: true
+      }`.
+Now run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
 ## Code scaffolding
 
