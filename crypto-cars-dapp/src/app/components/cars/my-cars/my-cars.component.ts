@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ContractService } from '../../../core/services/contract.service';
-import { ethers } from 'ethers';
 import { WalletService } from '../../../core/services/wallet.service';
 
 @Component({
@@ -10,7 +9,6 @@ import { WalletService } from '../../../core/services/wallet.service';
 export class MyCarsComponent implements OnInit {
   protected cars;
   protected totalMoneySpent;
-  protected ethers = ethers;
 
   constructor(
     protected contractService: ContractService,

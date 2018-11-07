@@ -8,32 +8,7 @@
       </select>
     </form>
   </div>
-  <div class="row ml-4" *ngIf="filteredCars">
-    <div *ngIf="filteredCars.length > 0; else notFound" class="ml-5 row space-top">
-      <div *ngFor="let car of filteredCars" class="card m-2">
-        <div class="card-body">
-          <img class="img-thumbnail car-image img-fluid mb-3 ml-4" src="https://ipfs.io/ipfs/{{getIpfsHash(car._imageHash)}}" />
-          <h4 class="text-center mb-4">{{ethers.utils.parseBytes32String(car._carMake)}} {{ethers.utils.parseBytes32String(car._carModel)}}</h4>
-          <p><strong>Owner:</strong> {{car._carOwner}}</p>
-          <p><strong>Is Second Hand:</strong> {{car._isSecondHand ? 'Yes' : 'No'}}</p>
-          <p *ngIf="car._isSecondHand"><strong>Bought For:</strong> {{ethers.utils.formatEther(car._carPrice)}} ETH</p>
-          <p *ngIf="!car._isSecondHand"><strong>Bought For:</strong> N/A</p>
-        </div>
-        <div class="card-footer">
-          <span *ngIf="car._isSecondHand" class="text-muted">Price: {{ethers.utils.formatEther(car._carPrice.mul(2))}} ETH</span>
-          <span *ngIf="!car._isSecondHand" class="text-muted">Price: {{ethers.utils.formatEther(car._carPrice)}} ETH</span>
-          <button 
-            type="button"
-            class="btn btn-warning btn-sm float-right"
-            *ngIf="walletService.isWalletLoaded() && (car._carOwner !== walletService.getAddress())"
-            routerLink="/cars/buy/{{car._id}}">
-            Buy
-          </button>
-        </div>
-      </div>
-    </div>
-    <ng-template #notFound>
-      <h3 class="text-warning">No cars found :(</h3>
-    </ng-template>
+  <div class="container-fluid">
+    <app-cars-list [cars]="filteredCars"></app-cars-list>
   </div>
 </div>

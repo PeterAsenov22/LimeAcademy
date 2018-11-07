@@ -7,31 +7,5 @@
   <h5 class="text-info">Total amount spent: {{totalMoneySpent}} ETH</h5>
 </div>
 <div class="container-fluid">
-  <div class="row ml-4" *ngIf="cars">
-    <div *ngIf="cars.length > 0; else notFound" class="ml-5 row space-top">
-      <div *ngFor="let car of cars" class="card m-2">
-        <div class="card-body">
-          <h4 class="text-center mb-4">{{ethers.utils.parseBytes32String(car._carMake)}} {{ethers.utils.parseBytes32String(car._carModel)}}</h4>
-          <p><strong>Owner:</strong> {{car._carOwner}}</p>
-          <p><strong>Is Second Hand:</strong> {{car._isSecondHand ? 'Yes' : 'No'}}</p>
-          <p *ngIf="car._isSecondHand"><strong>Bought For:</strong> {{ethers.utils.formatEther(car._carPrice)}} ETH</p>
-          <p *ngIf="!car._isSecondHand"><strong>Bought For:</strong> N/A</p>
-        </div>
-        <div class="card-footer">
-          <span *ngIf="car._isSecondHand" class="text-muted">Price: {{ethers.utils.formatEther(car._carPrice.mul(2))}} ETH</span>
-          <span *ngIf="!car._isSecondHand" class="text-muted">Price: {{ethers.utils.formatEther(car._carPrice)}} ETH</span>
-          <button 
-            type="button"
-            class="btn btn-warning btn-sm float-right"
-            *ngIf="walletService.isWalletLoaded() && (car._carOwner !== walletService.getAddress())"
-            routerLink="/cars/buy/{{car._id}}">
-            Buy
-          </button>
-        </div>
-      </div>
-    </div>
-    <ng-template #notFound>
-      <h3 class="text-warning">You do not own any cars :(</h3>
-    </ng-template>
-  </div>
+  <app-cars-list [cars]="cars"></app-cars-list>
 </div>
