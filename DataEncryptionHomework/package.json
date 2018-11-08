@@ -1,0 +1,16 @@
+{
+  "name": "dataencryptionhomework",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "PA",
+  "license": "MIT",
+  "dependencies": {
+    "eth-ecies": "1.0.3",
+    "ethers": "4.0.7",
+    "ipfs-api": "26.1.2"
+  }
+}
