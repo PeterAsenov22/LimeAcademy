@@ -2,6 +2,7 @@ pragma solidity ^0.4.25;
 
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 contract Cars is Ownable {
     using SafeMath for uint;
@@ -16,10 +17,15 @@ contract Cars is Ownable {
     }
     
     Car[] private cars;
+    address public carToken;
     
     mapping(address => uint[]) addressCars;
     mapping(uint => uint) carIndexPosition;
-    mapping(address => uint) totalMoneySpentByAddress;
+    mapping(address => uint) totalTokensSpentByAddress;
+
+    constructor(address _carTokenContract) public {
+        carToken = _carTokenContract;
+    }
     
     event CarAddedByContractOwner(uint _carIndex, bytes32 _make, bytes32 _model, uint _initialPrice);
     event CarBoughtFromContractOwner(address _buyer, uint256 _price, bytes32 _make, bytes32 _model);
@@ -46,13 +52,13 @@ contract Cars is Ownable {
         emit CarAddedByContractOwner(_carIndex, car.make, car.model, car.price);
     }
     
-    function buyCarFromContractOwner(uint _index) public payable onlyExistingCar(_index) {
+    function buyCarFromContractOwner(uint _index, uint _tokens) public onlyExistingCar(_index) {
      
         Car storage car = cars[_index];
         require(car.owner == owner, "Contract owner is not owner of the car.");
         require(car.isSecondHand == false, "The car is second-hand.");
         require(msg.sender != owner, "Contract owner is not allowed to call this function.");
-        require(msg.value >= car.price, "The amount of ether sent is not enough.");
+        require(_tokens >= car.price, "The amount of tokens sent is not enough.");
         
         removeCarFromCurrentOwner(car.owner, _index);
         
@@ -60,34 +66,37 @@ contract Cars is Ownable {
         carIndexPosition[_index] = carsLength - 1;
         
         car.owner = msg.sender;
-        car.price = msg.value;
+        car.price = _tokens;
         car.isSecondHand = true;
-        totalMoneySpentByAddress[msg.sender] = totalMoneySpentByAddress[msg.sender].add(msg.value);
+        totalTokensSpentByAddress[msg.sender] = totalTokensSpentByAddress[msg.sender].add(_tokens);
+
+        require(ERC20(carToken).transferFrom(msg.sender, address(this), _tokens));
         
         emit CarBoughtFromContractOwner(car.owner, car.price, car.make, car.model);
     }
     
-    function buyCarFromSeller(uint _index) public payable onlyExistingCar(_index) {
+    function buyCarFromSeller(uint _index, uint _tokens) public onlyExistingCar(_index) {
         
         Car storage car = cars[_index];
         address currentOwner = car.owner;
         
         require(car.isSecondHand == true, "This car is owned by the contract owner.");
         require(msg.sender != currentOwner, "The owner of the car cannot buy a car he already owns.");
-        require(msg.value >= car.price.mul(2) , "You must pay at least twice the current price of the car.");
+        require(_tokens >= car.price.mul(2) , "You must pay at least twice the current price of the car.");
         
         removeCarFromCurrentOwner(currentOwner, _index);
         
         uint carsLength = addressCars[msg.sender].push(_index);
         carIndexPosition[_index] = carsLength - 1;
         
-        uint refund = car.price.add(msg.value.sub(car.price).div(2));
+        uint refund = car.price.add(_tokens.sub(car.price).div(2));
    
         car.owner = msg.sender;
-        car.price = msg.value;
-        totalMoneySpentByAddress[msg.sender] = totalMoneySpentByAddress[msg.sender].add(msg.value);
+        car.price = _tokens;
+        totalTokensSpentByAddress[msg.sender] = totalTokensSpentByAddress[msg.sender].add(_tokens);
         
-        currentOwner.transfer(refund);
+        require(ERC20(carToken).transferFrom(msg.sender, address(this), _tokens));
+        require(ERC20(carToken).transfer(currentOwner, refund));
         
         emit CarBoughtFromSeller(car.owner, currentOwner, car.price, car.make, car.model);
     }
@@ -108,19 +117,17 @@ contract Cars is Ownable {
     }
     
     function withdrawProfit() onlyOwner public {
-        uint balance = address(this).balance;
+        ERC20 carTokenContract = ERC20(carToken);
+        uint balance = carTokenContract.balanceOf(address(this));
         require(balance > 0, "The contract does not have any profit.");
-        address(owner).transfer(balance);
+
+        carTokenContract.transfer(owner, balance);
         
         emit ProfitWithdrawal(balance, now);
     }
-    
-    function getContractBalance() public view onlyOwner returns (uint) {
-        return address(this).balance;
-    }
 
     function getTotalSpendingsByAddress(address _address) public view returns (uint) {
-        return totalMoneySpentByAddress[_address];
+        return totalTokensSpentByAddress[_address];
     }
 
     function getCarsCount() public view returns (uint) {
