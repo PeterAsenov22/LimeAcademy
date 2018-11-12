@@ -7,7 +7,8 @@ import { NgxSpinnerService } from 'ngx-spinner';
 export class WalletService {
   private wallet: ethers.Wallet;
 
-  constructor(private spinner: NgxSpinnerService) {
+  constructor(
+    private spinner: NgxSpinnerService) {
   }
 
   loadWallet(wallet: ethers.Wallet) {

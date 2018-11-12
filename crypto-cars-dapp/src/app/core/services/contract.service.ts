@@ -6,12 +6,14 @@ import { Injectable } from '@angular/core';
 import { IpfsService } from './ipfs.service';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ProviderService } from './provider.service';
+import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { TokenContractService } from '../services/tokenContract.service';
 import { WalletService } from './wallet.service';
 import { getBytes32FromIpfsHash } from '../../core/utils/helperFunctions';
 
 const Cars = require('../../contract_interfaces/Cars.json');
-const contractAddress = '0x367c06c29288A7FA63f7F29Dc484646D7f87689D';
+const contractAddress = '0xb637F7e2f072002CF91B64a6dF3a1937eCD1d668';
 const contractABI = Cars.abi;
 
 @Injectable()
@@ -20,11 +22,13 @@ export class ContractService {
   private contractOwner;
 
   constructor(
+    private tokenContractService: TokenContractService,
     private ipfsService: IpfsService,
     private walletService: WalletService,
     private providerService: ProviderService,
     private spinner: NgxSpinnerService,
-    private toastr: ToastrService) {
+    private toastr: ToastrService,
+    private router: Router) {
     this.deployedContract = new ethers.Contract(contractAddress, contractABI, this.providerService.getProvider());
     this.deployedContract
       .owner()
@@ -33,8 +37,8 @@ export class ContractService {
     this.deployedContract.on('CarAddedByContractOwner', (index, makeInBytes, modelInBytes, price) => {
       const make = ethers.utils.parseBytes32String(makeInBytes);
       const model = ethers.utils.parseBytes32String(modelInBytes);
-      const priceEth = ethers.utils.formatEther(price);
-      this.toastr.success(`${make} ${model} added by contract owner. Initial pirce: ${priceEth} ETH`);
+      const priceCt = ethers.utils.formatEther(price);
+      this.toastr.success(`${make} ${model} added by contract owner. Initial pirce: ${priceCt} CT`);
     });
   }
 
@@ -67,28 +71,40 @@ export class ContractService {
     return defer(async () => {
       try {
         this.spinner.show();
+        const approveTransaction = await this.tokenContractService.approve(contractAddress, amount);
+        this.spinner.hide();
+        this.toastr.success('Your transaction is being processed...');
+        this.router.navigate(['/']);
+
+        const transactionReceipt = await approveTransaction.wait();
+        if (transactionReceipt.status === 0) {
+          this.toastr.error('Transaction failed!');
+          this.spinner.hide();
+          return undefined;
+        }
+
         const wallet = this.walletService.getWallet();
         const connectedContract = this.deployedContract.connect(wallet);
 
         let sentTransaction;
         if (isSecondHand) {
-          sentTransaction = await connectedContract.buyCarFromSeller(index, {value: amount, gasPrice: 400000});
+          sentTransaction = await connectedContract.buyCarFromSeller(index, amount, {gasLimit: 400000});
         } else {
-          sentTransaction = await connectedContract.buyCarFromContractOwner(index, {value: amount, gasPrice: 400000});
+          sentTransaction = await connectedContract.buyCarFromContractOwner(index, amount, {gasLimit: 400000});
         }
 
         this.providerService.getProvider().once(sentTransaction.hash, (receipt) => {
           const prototype = new ethers.utils.Interface(contractABI);
-          const parsedLogs = prototype.parseLog(receipt.logs[0]);
+          const log = receipt.logs.filter(_log => _log.address === contractAddress)[0];
+          const parsedLogs = prototype.parseLog(log);
           const values = parsedLogs.values;
 
           const make = ethers.utils.parseBytes32String(values._make);
           const model = ethers.utils.parseBytes32String(values._model);
           const price = ethers.utils.formatEther(values._price);
-          this.toastr.success(`You have successfully bought ${make} ${model} for ${price} ETH`);
+          this.toastr.success(`You have successfully bought ${make} ${model} for ${price} CT`);
         });
 
-        this.spinner.hide();
         return sentTransaction.hash;
       } catch {
         this.toastr.error('Transaction failed!');
@@ -142,17 +158,17 @@ export class ContractService {
           carsResult.push(car);
         }
 
-        const totalMoneySpent = await this.deployedContract.getTotalSpendingsByAddress(address);
+        const totalTokensSpent = await this.deployedContract.getTotalSpendingsByAddress(address);
         this.spinner.hide();
         return {
           cars: carsResult,
-          money: ethers.utils.formatEther(totalMoneySpent)
+          tokens: ethers.utils.formatEther(totalTokensSpent)
         };
       } catch {
         this.spinner.hide();
         return {
           cars: [],
-          money: ethers.utils.formatEther(0)
+          tokens: ethers.utils.formatEther(0)
         };
       }
     });
