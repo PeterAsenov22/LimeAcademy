@@ -8,7 +8,7 @@ import { WalletService } from '../../../core/services/wallet.service';
 })
 export class MyCarsComponent implements OnInit {
   protected cars;
-  protected totalMoneySpent;
+  protected totalTokensSpent;
 
   constructor(
     protected contractService: ContractService,
@@ -19,7 +19,7 @@ export class MyCarsComponent implements OnInit {
         .getAddressCars(this.walletService.getAddress())
         .subscribe(result => {
           this.cars = result.cars;
-          this.totalMoneySpent = result.money;
+          this.totalTokensSpent = result.tokens;
         });
   }
 }

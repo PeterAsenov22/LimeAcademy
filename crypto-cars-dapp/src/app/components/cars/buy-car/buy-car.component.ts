@@ -61,23 +61,22 @@ export class BuyCarComponent implements OnInit {
       return;
     }
 
-    const amountInEth = ethers.utils.parseEther(this.amount.value.toString());
-    if (amountInEth.lt(this.carPrice)) {
+    const amountInCT = ethers.utils.parseEther(this.amount.value.toString());
+    if (amountInCT.lt(this.carPrice)) {
       this.buyForm.reset();
       this.toastr.error('Amount to spend should be at least as much as the current price');
     } else {
       this.contractService
-        .buyCar(this.id, amountInEth, this.car._isSecondHand)
+        .buyCar(this.id, amountInCT, this.car._isSecondHand)
         .subscribe(txHash => {
           if (txHash) {
-            this.router.navigate(['/']);
             this.toastr
               // tslint:disable-next-line:max-line-length
-              .success(`See transaction here: <a href="https://ropsten.etherscan.io/tx/${txHash}">https://ropsten.etherscan.io/tx/${txHash}</a>`,
+              .success(`See transaction here: <a target="_blank" href="https://ropsten.etherscan.io/tx/${txHash}">https://ropsten.etherscan.io/tx/${txHash}</a>`,
               'Transaction sent successfully!', {
               timeOut: 40000,
               enableHtml: true
-              });
+            });
           }
         });
     }

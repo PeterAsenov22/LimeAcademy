@@ -47,7 +47,7 @@
               class="form-control"
               id="price"
               formControlName="initialPrice"
-              placeholder="Enter initial price in Ether"
+              placeholder="Enter initial price in Car Token (CT)"
               [ngClass]="{ 'is-invalid': initialPrice.touched && initialPrice.errors }">
               <div *ngIf="initialPrice.errors" class="invalid-feedback">
                 <div *ngIf="initialPrice.errors.required">Initial price is required!</div>
@@ -66,7 +66,7 @@
           <ngb-alert type="success" (close)="closeAlert()">
             Transaction sent successfully!
             <br/>
-            See transaction here: <a href="https://ropsten.etherscan.io/tx/{{txHash}}">https://ropsten.etherscan.io/tx/{{txHash}}</a>
+            See transaction here: <a target="_blank" href="https://ropsten.etherscan.io/tx/{{txHash}}">https://ropsten.etherscan.io/tx/{{txHash}}</a>
           </ngb-alert>
       </div>
     </div>

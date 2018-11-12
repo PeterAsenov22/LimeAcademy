@@ -10,7 +10,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 export class HomeComponent implements OnInit {
   protected title = 'Crypto Cars';
   protected checkAddressForm;
-  protected addressTotalMoneySpent: string;
+  protected addressTotalTokensSpent: string;
   protected cars: any;
 
   constructor(
@@ -36,7 +36,7 @@ export class HomeComponent implements OnInit {
         .getAddressCars(this.address.value)
         .subscribe(result => {
           this.cars = result.cars;
-          this.addressTotalMoneySpent = result.money;
+          this.addressTotalTokensSpent = result.tokens;
         });
   }
 }

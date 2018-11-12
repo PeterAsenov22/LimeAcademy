@@ -6,12 +6,12 @@
         <h4 class="text-center mb-4">{{ethers.utils.parseBytes32String(car._carMake)}} {{ethers.utils.parseBytes32String(car._carModel)}}</h4>
         <p><strong>Owner:</strong> {{car._carOwner}}</p>
         <p><strong>Is Second Hand:</strong> {{car._isSecondHand ? 'Yes' : 'No'}}</p>
-        <p *ngIf="car._isSecondHand"><strong>Bought For:</strong> {{ethers.utils.formatEther(car._carPrice)}} ETH</p>
+        <p *ngIf="car._isSecondHand"><strong>Bought For:</strong> {{ethers.utils.formatEther(car._carPrice)}} CT</p>
         <p *ngIf="!car._isSecondHand"><strong>Bought For:</strong> N/A</p>
       </div>
       <div class="card-footer">
-        <span *ngIf="car._isSecondHand" class="text-muted">Price: {{ethers.utils.formatEther(car._carPrice.mul(2))}} ETH</span>
-        <span *ngIf="!car._isSecondHand" class="text-muted">Price: {{ethers.utils.formatEther(car._carPrice)}} ETH</span>
+        <span *ngIf="car._isSecondHand" class="text-muted">Price: {{ethers.utils.formatEther(car._carPrice.mul(2))}} CT</span>
+        <span *ngIf="!car._isSecondHand" class="text-muted">Price: {{ethers.utils.formatEther(car._carPrice)}} CT</span>
         <button 
           type="button"
           class="btn btn-warning btn-sm float-right"
