@@ -5,6 +5,7 @@ import { NgModule } from '@angular/core';
 import { ContractService } from './contract.service';
 import { IpfsService } from './ipfs.service';
 import { ProviderService } from './provider.service';
+import { TokenContractService } from './tokenContract.service';
 import { WalletService } from './wallet.service';
 
 @NgModule({
@@ -12,6 +13,7 @@ import { WalletService } from './wallet.service';
     ContractService,
     IpfsService,
     ProviderService,
+    TokenContractService,
     WalletService
   ],
   imports: [
