@@ -94,15 +94,19 @@ export class ContractService {
         }
 
         this.providerService.getProvider().once(sentTransaction.hash, (receipt) => {
-          const prototype = new ethers.utils.Interface(contractABI);
-          const log = receipt.logs.filter(_log => _log.address === contractAddress)[0];
-          const parsedLogs = prototype.parseLog(log);
-          const values = parsedLogs.values;
+          if (receipt.status === 0) {
+            this.toastr.error('Transaction failed!');
+          } else {
+            const prototype = new ethers.utils.Interface(contractABI);
+            const log = receipt.logs.filter(_log => _log.address === contractAddress)[0];
+            const parsedLogs = prototype.parseLog(log);
+            const values = parsedLogs.values;
 
-          const make = ethers.utils.parseBytes32String(values._make);
-          const model = ethers.utils.parseBytes32String(values._model);
-          const price = ethers.utils.formatEther(values._price);
-          this.toastr.success(`You have successfully bought ${make} ${model} for ${price} CT`);
+            const make = ethers.utils.parseBytes32String(values._make);
+            const model = ethers.utils.parseBytes32String(values._model);
+            const price = ethers.utils.formatEther(values._price);
+            this.toastr.success(`You have successfully bought ${make} ${model} for ${price} CT`);
+          }
         });
 
         return sentTransaction.hash;
