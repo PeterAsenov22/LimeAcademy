@@ -43,10 +43,10 @@ contract Cars is Ownable {
         require(_initialPrice > 0, "Invalid initial car price.");
         require(_imageHash[0] != 0, "Invalid car image hash.");
         
-        Car memory car = Car(_make, _model, owner, _initialPrice, false, _imageHash);
+        Car memory car = Car(_make, _model, owner(), _initialPrice, false, _imageHash);
         uint _carIndex = cars.push(car) - 1;
         
-        uint carsLength = addressCars[owner].push(_carIndex);
+        uint carsLength = addressCars[owner()].push(_carIndex);
         carIndexPosition[_carIndex] = carsLength - 1;
         
         emit CarAddedByContractOwner(_carIndex, car.make, car.model, car.price);
@@ -55,9 +55,9 @@ contract Cars is Ownable {
     function buyCarFromContractOwner(uint _index, uint _tokens) public onlyExistingCar(_index) {
      
         Car storage car = cars[_index];
-        require(car.owner == owner, "Contract owner is not owner of the car.");
+        require(car.owner == owner(), "Contract owner is not owner of the car.");
         require(car.isSecondHand == false, "The car is second-hand.");
-        require(msg.sender != owner, "Contract owner is not allowed to call this function.");
+        require(msg.sender != owner(), "Contract owner is not allowed to call this function.");
         require(_tokens >= car.price, "The amount of tokens sent is not enough.");
         
         removeCarFromCurrentOwner(car.owner, _index);
@@ -121,7 +121,7 @@ contract Cars is Ownable {
         uint balance = carTokenContract.balanceOf(address(this));
         require(balance > 0, "The contract does not have any profit.");
 
-        carTokenContract.transfer(owner, balance);
+        carTokenContract.transfer(owner(), balance);
         
         emit ProfitWithdrawal(balance, now);
     }
