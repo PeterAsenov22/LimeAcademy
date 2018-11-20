@@ -1,13 +1,13 @@
 const etherlime = require('etherlime');
 const CarTokenCrowdsale = require('../build/CarTokenCrowdsale.json');
 
-describe('CarTokenCrowdsale', () => {
+describe.only('CarTokenCrowdsale', () => {
   const TEN_ETHERS = ethers.utils.bigNumberify('10000000000000000000');
   const ONE_HUNDRED_ETHERS = ethers.utils.bigNumberify('100000000000000000000');
 
   const dateNow = Date.now();
   const crowdsaleStartDate = parseInt((new Date(dateNow + 2 * 24*3600*1000).getTime())/1000);
-  const crowdsaleEndDate = parseInt((new Date(crowdsaleStartDate + 14 * 24*3600*1000).getTime())/1000);
+  const crowdsaleEndDate = parseInt((new Date((crowdsaleStartDate*1000) + 14 * 24*3600*1000).getTime())/1000);
 
   const tokenName = 'Car Token'
   const tokenSymbol = 'CT'
@@ -54,21 +54,21 @@ describe('CarTokenCrowdsale', () => {
 
     it('should revert if crowdsale duration is less than 2 weeks ', async () => {
       const crowdsaleStartDate = parseInt((new Date(dateNow + 2 * 24*3600*1000).getTime())/1000);
-      const crowdsaleEndDate = parseInt((new Date(crowdsaleStartDate + 7 * 24*3600*1000).getTime())/1000);
+      const crowdsaleEndDate = parseInt((new Date((crowdsaleStartDate*1000) + 7 * 24*3600*1000).getTime())/1000);
 
       await assert.revert(deployer.deploy(CarTokenCrowdsale, {},crowdsaleStartDate, crowdsaleEndDate, owner.wallet.address, tokenName, tokenSymbol, tokenDecimals));
     });
 
     it('should revert if crowdsale duration is more than 2 weeks ', async () => {
       const crowdsaleStartDate = parseInt((new Date(dateNow + 2 * 24*3600*1000).getTime())/1000);
-      const crowdsaleEndDate = parseInt((new Date(crowdsaleStartDate + 21 * 24*3600*1000).getTime())/1000);
+      const crowdsaleEndDate = parseInt((new Date((crowdsaleStartDate*1000) + 21 * 24*3600*1000).getTime())/1000);
 
       await assert.revert(deployer.deploy(CarTokenCrowdsale, {},crowdsaleStartDate, crowdsaleEndDate, owner.wallet.address, tokenName, tokenSymbol, tokenDecimals));
     });
 
     it('should revert if start date is before block.timestamp', async () => {
       const crowdsaleStartDate = parseInt((new Date(dateNow - 2 * 24*3600*1000).getTime())/1000);
-      const crowdsaleEndDate = parseInt((new Date(crowdsaleStartDate + 14 * 24*3600*1000).getTime())/1000);
+      const crowdsaleEndDate = parseInt((new Date((crowdsaleStartDate*1000) + 14 * 24*3600*1000).getTime())/1000);
 
       await assert.revert(deployer.deploy(CarTokenCrowdsale, {},crowdsaleStartDate, crowdsaleEndDate, owner.wallet.address, tokenName, tokenSymbol, tokenDecimals));
     });
