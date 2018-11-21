@@ -16,21 +16,19 @@ contract CarTokenCrowdsale is CappedCrowdsale, MintedCrowdsale, RefundableCrowds
   uint public constant CROWDSALE_DURATION = 2 weeks;
   uint public constant DEFAULT_RATE = 100;
   uint public constant PUBLIC_SALE_1_WEEK_RATE = 140;
-  uint public constant SOFT_CAP = 10 ether;
-  uint public constant HARD_CAP = 100 ether;
   uint public constant MIN_CONTRIBUTION_AMOUNT = 10 finney;
   uint public constant OWNER_PERCENTAGE_TOKENS = 10;
 
   uint public firstWeekPublicSaleEndDate;
   address public carProducerAddress;
 
-  constructor(uint _startDate, uint _endDate, address _etherPoolAddress, address _tokenAddress, address _carProducerAddress) public
-    CappedCrowdsale(HARD_CAP)
-    RefundableCrowdsale(SOFT_CAP)
+  constructor(uint _goal, uint _cap, uint _startDate, uint _endDate, address _etherPoolAddress, address _tokenAddress, address _carProducerAddress) public
+    CappedCrowdsale(_cap)
+    RefundableCrowdsale(_goal)
     TimedCrowdsale(_startDate, _endDate)
     Crowdsale(DEFAULT_RATE, _etherPoolAddress, IERC20(_tokenAddress))
     {
-      require(SOFT_CAP <= HARD_CAP, "HARD_CAP is not bigger than SOFT_CAP");
+      require(_goal <= _cap, "Cap is not bigger than crowdsale goal");
       require(_endDate.sub(_startDate) == CROWDSALE_DURATION, "Crowdsale duration is not 2 weeks");
 
       firstWeekPublicSaleEndDate = _startDate.add(1 weeks);
