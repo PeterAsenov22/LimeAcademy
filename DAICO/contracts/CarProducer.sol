@@ -32,7 +32,6 @@ contract CarProducer is Ownable {
   function generateFirstTenCars() public onlyCrowdsaleContract {
     for(uint i = 0; i < 10; i++) {
       address createdCar = createNewCar("Audi A8", "4.3", 1 ether);
-        
       CarShop(carShopContract).addNewCar(createdCar);
     }
   }
@@ -48,9 +47,11 @@ contract CarProducer is Ownable {
     CarShop(carShopContract).addNewCar(createdCar);
   }
 
-  function startNewCarManufactory(uint _price, bytes32 _model, bytes32 _engine) public onlyVotingContract onlyIfCarShopExists {
-    address createdCar = createNewCar(_model, _engine, _price);
-    CarShop(carShopContract).addNewCar(createdCar);
+  function startNewCarManufactory(bytes32 _model, bytes32 _engine, uint _price) public onlyVotingContract onlyIfCarShopExists {
+    for(uint i = 0; i < 5; i++) {
+      address createdCar = createNewCar(_model, _engine, _price); 
+      CarShop(carShopContract).addNewCar(createdCar);
+    }
   }
 
   function createNewCar(bytes32 _model, bytes32 _engine, uint _price) internal returns(address) {
