@@ -1,7 +1,7 @@
 const etherlime = require('etherlime');
 const CarTokenCrowdsale = require('../build/CarTokenCrowdsale.json');
 
-describe.only('CarTokenCrowdsale', () => {
+describe('CarTokenCrowdsale', () => {
   const TEN_ETHERS = ethers.utils.bigNumberify('10000000000000000000');
   const ONE_HUNDRED_ETHERS = ethers.utils.bigNumberify('100000000000000000000');
 

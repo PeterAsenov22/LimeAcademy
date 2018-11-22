@@ -1,8 +1,10 @@
 const etherlime = require('etherlime');
 const Cars = require('../build/Cars.json');
 const CarToken = require('../build/CarToken.json');
+const Oracle = require('../build/Oracle.json');
 
-describe('Cars', () => {
+describe.only('Cars', () => {
+  const ETH_PRICE_IN_USD = 140;
   const ONE_CAR_TOKEN = ethers.utils.bigNumberify('1000000000000000000');
   const ONE_AND_A_HALF_CAR_TOKENS = ethers.utils.bigNumberify('1500000000000000000');
   const TWO_CAR_TOKENS = ethers.utils.bigNumberify('2000000000000000000');
@@ -33,6 +35,7 @@ describe('Cars', () => {
   let provider;
   let deployedCarTokenContractWrapper;
   let deployedCarsContractWrapper;
+  let deployedOracleContractWrapper;
   let contract;
   let tokenContract;
 
@@ -40,8 +43,9 @@ describe('Cars', () => {
     deployer = new etherlime.EtherlimeGanacheDeployer(owner.secretKey);
     provider = deployer.provider;
 
+    deployedOracleContractWrapper = await deployer.deploy(Oracle, {}, ETH_PRICE_IN_USD);
     deployedCarTokenContractWrapper = await deployer.deploy(CarToken, {}, tokenName, tokenSymbol, tokenDecimals);
-    deployedCarsContractWrapper = await deployer.deploy(Cars, {}, deployedCarTokenContractWrapper.contractAddress);
+    deployedCarsContractWrapper = await deployer.deploy(Cars, {}, deployedCarTokenContractWrapper.contractAddress, deployedOracleContractWrapper.contractAddress);
     contract = deployedCarsContractWrapper.contract;
     tokenContract = deployedCarTokenContractWrapper.contract;
 
@@ -123,6 +127,21 @@ describe('Cars', () => {
 
     it('should revert if invalid index is passed', async () => {
       await assert.revert(contract.getCarInfo(0));
+    });
+  });
+
+  describe('getCarPriceInUSD', () => {
+    it('should return correct data', async () => {
+      await contract.addCar(make, model, initialPrice, imageHash);
+
+      let carPriceInUSD  = await contract.getCarPriceInUSD(0);
+      let expectedPrice = initialPrice.mul(ETH_PRICE_IN_USD);
+
+      assert(carPriceInUSD.eq(expectedPrice), 'Does not return correct car price');
+    });
+
+    it('should revert if invalid index is passed', async () => {
+      await assert.revert(contract.getCarPriceInUSD(0));
     });
   });
 
