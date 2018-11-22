@@ -2,6 +2,7 @@ const etherlime = require('etherlime');
 const ethers = require('ethers');
 const Cars = require('../build/Cars.json');
 const CarToken = require('../build/CarToken.json');
+const Oracle = require('../build/Oracle.json');
 
 const deploy = async (network, secret) => {
 	const deployer = new etherlime.InfuraPrivateKeyDeployer(secret, network, 'f8d2169f70584df396394ad9ce130289');
@@ -9,10 +10,12 @@ const deploy = async (network, secret) => {
 	const tokenName = 'Car Token';
 	const tokenSymbol = 'CT'
 	const tokenDecimals = 18;
+	const etherPriceInUsd = 140;
 	const TEN_CAR_TOKENS = ethers.utils.bigNumberify('10000000000000000000');
 
+	const oracleContract = await deployer.deploy(Oracle, {}, etherPriceInUsd);
 	const carTokenContract = await deployer.deploy(CarToken, {}, tokenName, tokenSymbol, tokenDecimals);
-	const carsContract = await deployer.deploy(Cars, {}, carTokenContract.contractAddress);
+	const carsContract = await deployer.deploy(Cars, {}, carTokenContract.contractAddress, oracleContract.contractAddress);
 
 	const ownerMintTx = await carTokenContract.contract.mint(deployer.wallet.address, TEN_CAR_TOKENS);
 	await carTokenContract.verboseWaitForTransaction(ownerMintTx, `Minting 10 Car Tokens to address: ${deployer.wallet.address}`);
