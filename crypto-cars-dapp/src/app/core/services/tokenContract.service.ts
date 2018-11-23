@@ -7,7 +7,7 @@ import { ProviderService } from './provider.service';
 import { WalletService } from './wallet.service';
 
 const CarToken = require('../../contract_interfaces/CarToken.json');
-const contractAddress = '0x8288ca5f69259b9d628a713ed1532f4ccc027eea';
+const contractAddress = '0x3983e158083198807702b3E809e0B48Cc78F75bF';
 const contractABI = CarToken.abi;
 
 @Injectable()

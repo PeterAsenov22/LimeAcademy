@@ -13,7 +13,7 @@ import { WalletService } from './wallet.service';
 import { getBytes32FromIpfsHash } from '../../core/utils/helperFunctions';
 
 const Cars = require('../../contract_interfaces/Cars.json');
-const contractAddress = '0xb637F7e2f072002CF91B64a6dF3a1937eCD1d668';
+const contractAddress = '0xB22c8eCFFf3D8478EBD2aB1c9565fEe2f01114D4';
 const contractABI = Cars.abi;
 
 @Injectable()
@@ -126,7 +126,9 @@ export class ContractService {
       const allCarsResult = [];
       for (let i = 0; i < carsCount.toNumber(); i++) {
         const car = await this.deployedContract.getCarInfo(i);
+        const carPriceInUSD = await this.deployedContract.getCarPriceInUSD(i);
         car._id = i;
+        car._priceUSD = carPriceInUSD;
         allCarsResult.push(car);
       }
 
@@ -158,7 +160,9 @@ export class ContractService {
         const carsResult = [];
         for (const index of carsIndexes) {
           const car = await this.deployedContract.getCarInfo(index.toNumber());
+          const carPriceInUSD = await this.deployedContract.getCarPriceInUSD(index);
           car._id = index;
+          car._priceUSD = carPriceInUSD;
           carsResult.push(car);
         }
 

@@ -10,8 +10,8 @@
         <p *ngIf="!car._isSecondHand"><strong>Bought For:</strong> N/A</p>
       </div>
       <div class="card-footer">
-        <span *ngIf="car._isSecondHand" class="text-muted">Price: {{ethers.utils.formatEther(car._carPrice.mul(2))}} CT</span>
-        <span *ngIf="!car._isSecondHand" class="text-muted">Price: {{ethers.utils.formatEther(car._carPrice)}} CT</span>
+        <span *ngIf="car._isSecondHand" class="text-muted">Price: {{ethers.utils.formatEther(car._carPrice.mul(2))}} CT / {{ethers.utils.formatEther(car._priceUSD.mul(2))}} USD</span>
+        <span *ngIf="!car._isSecondHand" class="text-muted">Price: {{ethers.utils.formatEther(car._carPrice)}} CT / {{ethers.utils.formatEther(car._priceUSD)}} USD</span>
         <button 
           type="button"
           class="btn btn-warning btn-sm float-right"
