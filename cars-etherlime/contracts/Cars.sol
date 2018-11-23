@@ -1,5 +1,6 @@
 pragma solidity ^0.4.25;
 
+import "./Oracle.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
@@ -18,13 +19,15 @@ contract Cars is Ownable {
     
     Car[] private cars;
     address public carToken;
+    address public oracleContract;
     
     mapping(address => uint[]) addressCars;
     mapping(uint => uint) carIndexPosition;
     mapping(address => uint) totalTokensSpentByAddress;
 
-    constructor(address _carTokenContract) public {
+    constructor(address _carTokenContract, address _oracleContract) public {
         carToken = _carTokenContract;
+        oracleContract = _oracleContract;
     }
     
     event CarAddedByContractOwner(uint _carIndex, bytes32 _make, bytes32 _model, uint _initialPrice);
@@ -110,6 +113,11 @@ contract Cars is Ownable {
         _carModel = car.model;
         _isSecondHand = car.isSecondHand;
         _imageHash = car.imageHash;
+    }
+
+    function getCarPriceInUSD(uint _index) public view onlyExistingCar(_index) returns (uint _carPriceInUSD) {
+        uint ethPriceInUSD = Oracle(oracleContract).ethPriceInUSD();
+        return cars[_index].price.mul(ethPriceInUSD);
     }
     
     function getAddressCars(address _address) public view returns (uint[]) {
