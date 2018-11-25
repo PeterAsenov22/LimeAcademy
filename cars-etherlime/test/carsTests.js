@@ -3,7 +3,7 @@ const Cars = require('../build/Cars.json');
 const CarToken = require('../build/CarToken.json');
 const Oracle = require('../build/Oracle.json');
 
-describe.only('Cars', () => {
+describe('Cars', () => {
   const ETH_PRICE_IN_USD = 140;
   const ONE_CAR_TOKEN = ethers.utils.bigNumberify('1000000000000000000');
   const ONE_AND_A_HALF_CAR_TOKENS = ethers.utils.bigNumberify('1500000000000000000');
