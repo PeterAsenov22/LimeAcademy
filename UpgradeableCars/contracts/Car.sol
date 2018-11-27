@@ -7,9 +7,10 @@ contract Car {
   uint public price;
   bool public isSecondHand;
   bytes32 public imageHash;
+  address public carShop;
     
-  modifier onlyOwner() {
-    require(msg.sender == owner, "");
+  modifier onlyCarShop() {
+    require(msg.sender == carShop, "Only car shop can call this");
     _;
   }
     
@@ -20,9 +21,10 @@ contract Car {
     price = _price;
     isSecondHand = _isSecondHand;
     imageHash = _imageHash;
+    carShop = msg.sender;
   }
     
-  function transferOwnership(address _newOwner, uint _newPrice) public onlyOwner {
+  function transferOwnership(address _newOwner, uint _newPrice) public onlyCarShop {
     owner = _newOwner;
     price = _newPrice;
     isSecondHand = true;

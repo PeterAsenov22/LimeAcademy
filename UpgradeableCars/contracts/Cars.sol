@@ -40,12 +40,11 @@ contract Cars is ICars, OwnableUpgradeableImplementation {
       
     Car car = Car(cars[_index]);
     address carOwner = car.owner();
-    uint carPrice = car.price();
     
     require(carOwner == getOwner(), "Contract owner is not owner of the car.");
     require(car.isSecondHand() == false, "The car is second-hand.");
     require(msg.sender != getOwner(), "Contract owner is not allowed to call this function.");
-    require(_tokens >= carPrice, "The amount of tokens sent is not enough.");
+    require(_tokens >= car.price(), "The amount of tokens sent is not enough.");
       
     removeCarFromCurrentOwner(carOwner, _index);
     
@@ -57,7 +56,7 @@ contract Cars is ICars, OwnableUpgradeableImplementation {
 
     require(ERC20(carToken).transferFrom(msg.sender, address(this), _tokens));
     
-    emit CarBoughtFromContractOwner(carOwner, carPrice, car.make(), car.model());
+    emit CarBoughtFromContractOwner(msg.sender, car.price(), car.make(), car.model());
   }
     
   function buyCarFromSeller(uint _index, uint _tokens) public onlyExistingCar(_index) {
