@@ -297,4 +297,115 @@ describe('CarTokenCrowdsale', () => {
       assert(walletTokenBalance.eq(expectedWalletTokenBalance), 'Crowdsale wallet has invalid token balance');
     });
   });
+
+  describe('not completed crowdsale', () => {
+    let newCrowdsaleStartDate = parseInt((new Date(dateNow + 18 * 24*3600*1000).getTime())/1000);
+    let newCrowdsaleEndDate = parseInt((new Date((newCrowdsaleStartDate*1000) + 14 * 24*3600*1000).getTime())/1000);
+    
+    it('should deploy the crowdsale successfully', async () => {
+      deployedCarTokenCrowdsaleContractWrapper = await deployer.deploy(CarTokenCrowdsale, {}, newCrowdsaleStartDate, newCrowdsaleEndDate, owner.wallet.address, tokenName, tokenSymbol, tokenDecimals);
+      crowdsaleContract = deployedCarTokenCrowdsaleContractWrapper.contract;
+
+      let startDate = await crowdsaleContract.openingTime();
+      let endDate = await crowdsaleContract.closingTime();
+      let isCrowdsaleOpen = await crowdsaleContract.isOpen();
+
+      assert(startDate.eq(newCrowdsaleStartDate), 'Crowdsale start date was not set correctly');
+      assert(endDate.eq(newCrowdsaleEndDate), 'Crowdsale end date was not set correctly');
+      assert(!isCrowdsaleOpen, 'Crowdsale was open');
+    });
+  
+    it('should open the crowdsale successfully', async () => {
+      deployedCarTokenCrowdsaleContractWrapper = await deployer.deploy(CarTokenCrowdsale, {}, newCrowdsaleStartDate, newCrowdsaleEndDate, owner.wallet.address, tokenName, tokenSymbol, tokenDecimals);
+      crowdsaleContract = deployedCarTokenCrowdsaleContractWrapper.contract;
+
+      await utils.timeTravel(provider, 3*24*3600);
+      let isCrowdsaleOpen = await crowdsaleContract.isOpen();
+
+      assert(isCrowdsaleOpen, 'Crowdsale was not open');
+    });
+
+    describe('buying tokens', () => {
+      beforeEach(async () => {
+        let _secondUserWallet = new ethers.Wallet(secondUser.secretKey, provider);
+        _contract = new ethers.Contract(deployedCarTokenCrowdsaleContractWrapper.contractAddress, CarTokenCrowdsale.abi, _secondUserWallet);
+        let tokenAddress = await crowdsaleContract.token();
+        tokenContract = new ethers.Contract(tokenAddress, CarToken.abi, _secondUserWallet);
+      });
+  
+      it('user should buy tokens successfully in the first period', async () => {
+        await _contract.buyTokens(secondUser.wallet.address, {value: ONE_ETHER, gasLimit: 2000000});
+  
+        let secondUserTokensBalance = await tokenContract.balanceOf(secondUser.wallet.address);
+        let contractWeiRaised = await _contract.weiRaised();
+  
+        assert(secondUserTokensBalance.eq(ONE_HUNDRED_AND_FOURTY_TOKENS), 'User balance was not 140 CT');
+        assert(contractWeiRaised.eq(ONE_ETHER), 'Invalid amount of wei raised');
+      });
+
+      it('user should buy tokens successfully in the second period', async () => {
+        await utils.timeTravel(provider, 7*24*3600);
+  
+        let secondUserPreviousBalance = await tokenContract.balanceOf(secondUser.wallet.address);
+  
+        await _contract.buyTokens(secondUser.wallet.address, {value: ONE_ETHER, gasLimit: 2000000});
+  
+        let secondUserCurrentBalance = await tokenContract.balanceOf(secondUser.wallet.address);
+        let contractWeiRaised = await _contract.weiRaised();
+  
+        assert(secondUserCurrentBalance.eq((ONE_HUNDRED_TOKENS.add(secondUserPreviousBalance))), 'Invalid user balance');
+        assert(contractWeiRaised.eq(ONE_ETHER.mul(2)), 'Invalid amount of wei raised');
+      });
+
+      it('should have not reached the soft cap', async () => {
+        let contractWeiRaised = await crowdsaleContract.weiRaised();
+        let isSoftCapReached = await crowdsaleContract.goalReached();
+  
+        assert(contractWeiRaised.eq(ONE_ETHER.mul(2)), 'Invalid amount of wei raised');
+        assert(!isSoftCapReached, 'Crowdsale soft cap was reached');
+      });
+    });
+
+    describe('close crowdsale', () => {
+      beforeEach(async () => {
+        let _secondUserWallet = new ethers.Wallet(secondUser.secretKey, provider);
+        _contract = new ethers.Contract(deployedCarTokenCrowdsaleContractWrapper.contractAddress, CarTokenCrowdsale.abi, _secondUserWallet);
+      });
+
+      it('should close the crowdsale successfully', async () => {
+        await utils.timeTravel(provider, 7*24*3600);
+  
+        let isOpen = await crowdsaleContract.isOpen();
+        let hasClosed = await crowdsaleContract.hasClosed();
+        let finalized = await crowdsaleContract.finalized();
+        let isSoftCapReached = await crowdsaleContract.goalReached();
+  
+        assert(!isOpen, 'Crowdsale was open');
+        assert(hasClosed, 'Crowdsale was not closed');
+        assert(!finalized, 'Crowdsale was finalized');
+        assert(!isSoftCapReached, 'Crowdsale soft cap was reached');
+      });
+  
+      it('should finalize the crowdsale successfully', async () => {
+        let walletBalanceBeforeFinalize = await provider.getBalance(owner.wallet.address);
+  
+        await _contract.finalize({gasLimit: 2000000});
+  
+        let finalized = await crowdsaleContract.finalized();
+        let walletBalanceAfterFinalize = await provider.getBalance(owner.wallet.address);
+  
+        assert(finalized, 'Crowdsale was not finalized');
+        assert(walletBalanceAfterFinalize.eq(walletBalanceBeforeFinalize), 'Crowdsale wallet has invalid balance');
+      });
+  
+      it('should successfully refund the user', async () => {
+        let userBalanceBeforeRefund = await provider.getBalance(secondUser.wallet.address);
+        await crowdsaleContract.claimRefund(secondUser.wallet.address, {gasLimit: 2000000});
+
+        let userBalanceAfterRefund = await provider.getBalance(secondUser.wallet.address);
+
+        assert((userBalanceBeforeRefund.add(TWO_ETHERS)).eq(userBalanceAfterRefund), 'Crowdsale wallet has invalid token balance');
+      });
+    });
+  });
 });
